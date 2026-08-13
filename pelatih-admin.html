@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Kelola Gaji & Pencairan Sat Set</title>
+
+    <!-- Security Guard -->
+    <script src="security-guard.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDK compat -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- HEADER ADMIN -->
+        <header class="main-header" style="border-color: rgba(139, 92, 246, 0.3);">
+            <div class="logo-brand">
+                <i class="fa-solid fa-user-shield" style="color:var(--accent-purple); background:rgba(139, 92, 246, 0.15);"></i>
+                <div>
+                    <h1>Portal Control Admin - Gaji Pelatih</h1>
+                    <p>Manajemen Kehadiran, Honor & Approval Pencairan Sat Set</p>
+                </div>
+            </div>
+            <div class="user-badge-header">
+                <div class="badge-info">
+                    <div class="name">Administrator Utama</div>
+                    <div class="role" style="color:var(--accent-purple); background:rgba(139, 92, 246, 0.15); border-color:rgba(139, 92, 246, 0.3);">Akses Lengkap</div>
+                </div>
+                <button class="btn-logout" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
+            </div>
+        </header>
+
+        <!-- TAB NAVIGATION ADMIN -->
+        <nav class="admin-tab-nav">
+            <button class="admin-tab-btn active" onclick="switchAdminTab('pelatih', this)">
+                <i class="fa-solid fa-users"></i> Master Akun Pelatih
+            </button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('sekolah', this)">
+                <i class="fa-solid fa-school" style="color:#38bdf8;"></i> Kelola & Rekap Sekolah
+            </button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('penarikan', this)">
+                <i class="fa-solid fa-bolt" style="color:#fbbf24;"></i> Pengajuan Pencairan (<span id="countTabPendingPenarikan">0</span>)
+            </button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('kehadiran', this)">
+                <i class="fa-solid fa-calendar-plus"></i> Rekap Kehadiran
+            </button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('logs', this)">
+                <i class="fa-solid fa-clock-rotate-left" style="color:#c084fc;"></i> Histori Log & Perangkat (<span id="countTabLogs">0</span>)
+            </button>
+        </nav>
+
+        <!-- 1. DAFTAR MASTER PELATIH (TAB UTAMA / PERTAMA) -->
+        <section id="secMasterPelatih" class="glass-card" style="display:block;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h3 style="font-size:16px; font-weight:700;"><i class="fa-solid fa-users" style="color:var(--accent-purple);"></i> Master Data Akun Pelatih Terdaftar</h3>
+                    <p style="font-size:12px; color:var(--text-secondary);">Kelola status aktif/nonaktif, sembunyikan dana (hide dana), dan hapus akun pelatih</p>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <button id="btnToggleHideDanaGlobal" class="btn-action-satset" style="background:#6366f1; color:#fff; padding:10px 16px; font-size:13px;" onclick="adminToggleHideDanaGlobal()">
+                        <i class="fa-solid fa-eye"></i> Sembunyikan Dana SEMUA Akun Pelatih
+                    </button>
+                    <button id="btnHapusMassalPelatih" class="btn-action-danger" style="display:none; padding:10px 16px; font-size:13px;" onclick="adminHapusMassalPelatih()">
+                        <i class="fa-solid fa-user-xmark"></i> Hapus Akun Terpilih (<span id="countSelectedPelatih">0</span>)
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th style="width:36px;"><input type="checkbox" id="selectAllPelatih" onclick="toggleSelectAllPelatih(this)"></th>
+                            <th>Profil & Nama Pelatih</th>
+                            <th>No HP (Username)</th>
+                            <th>Password (PIN)</th>
+                            <th>Status & Fitur Akun</th>
+                            <th>Rekening Default Pelatih</th>
+                            <th>Aksi Kontrol Akun</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelMasterPelatih">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 1.5. KELOLA MASTER DATA SEKOLAH & REKAP SEKOLAH -->
+        <section id="secSekolah" class="glass-card" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h3 style="font-size:16px; font-weight:700;"><i class="fa-solid fa-school" style="color:#38bdf8;"></i> Kelola Data Sekolah & Rekap Kehadiran Per Sekolah</h3>
+                    <p style="font-size:12px; color:var(--text-secondary);">Tambah nama sekolah baru dan lihat rekap statistik berapa kali sekolah diajar serta siapa saja pelatihnya</p>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <form onsubmit="handleAdminTambahSekolah(event)" style="display:flex; gap:8px; align-items:center;">
+                        <input type="text" id="inputNamaSekolahBaru" class="form-control" placeholder="Nama Sekolah (mis: SMPN 1)" required style="width:220px; font-size:13px;">
+                        <button type="submit" class="btn-action-satset" style="background:#38bdf8; color:#000; padding:9px 14px; font-size:13px; white-space:nowrap;">
+                            <i class="fa-solid fa-plus"></i> Tambah Sekolah
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TABEL RINGKASAN REKAP SEKOLAH -->
+            <div style="margin-bottom:24px;">
+                <h4 style="font-size:14px; font-weight:700; color:var(--text-primary); margin-bottom:10px;">
+                    <i class="fa-solid fa-chart-pie" style="color:#fbbf24;"></i> Rekap Frekuensi Sekolah Diajar
+                </h4>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Nama Sekolah</th>
+                                <th>Frekuensi Diajar</th>
+                                <th>Daftar Pelatih Yang Mengajar</th>
+                                <th>Total Sesi Jam</th>
+                                <th>Total Honor Dicatat</th>
+                                <th>Aksi Admin</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelRekapSekolah">
+                            <!-- Loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. FITUR UTAMA PENCAIRAN TUNAI SAT SET -->
+        <section id="secPencairan" class="glass-card" style="border:1px solid rgba(16, 185, 129, 0.4); display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h2 style="font-size:18px; font-weight:800; color:var(--text-primary);">
+                        <i class="fa-solid fa-bolt" style="color:#fbbf24;"></i> Pengajuan Pencairan Dana Pelatih (Sat Set ACC)
+                    </h2>
+                    <p style="font-size:13px; color:var(--text-secondary);">Seluruh form pengajuan penarikan dari pelatih akan muncul di sini. Klik setujui untuk menyelesaikan pencairan.</p>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <button id="btnHapusMassalPenarikan" class="btn-action-danger" style="display:none; padding:8px 14px; font-size:12px;" onclick="adminHapusMassalPenarikan()">
+                        <i class="fa-solid fa-trash-can"></i> Hapus Terpilih (<span id="countSelectedPenarikan">0</span>)
+                    </button>
+                    <div style="background:rgba(245, 158, 11, 0.15); padding:8px 16px; border-radius:12px; border:1px solid rgba(245, 158, 11, 0.3); color:#fbbf24; font-weight:700; font-size:13px;">
+                        Pending: <span id="countPendingPenarikan">0</span> Antrean
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th style="width:36px;"><input type="checkbox" id="selectAllPenarikan" onclick="toggleSelectAllPenarikan(this)"></th>
+                            <th>Waktu Pengajuan</th>
+                            <th>Nama & No HP Pelatih</th>
+                            <th>Data Bank & Rekening Pelatih</th>
+                            <th>Nominal Cair</th>
+                            <th>Status saat ini</th>
+                            <th>Aksi Kilat (Sat Set)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelAdminPenarikan">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 3. KELOLA ABSENSI & KEHADIRAN MENGAJAR -->
+        <section id="secKehadiran" class="glass-card" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h3 style="font-size:16px; font-weight:700;"><i class="fa-solid fa-calendar-plus" style="color:var(--primary);"></i> Input & Rekap Kehadiran Mengajar Pelatih</h3>
+                    <p style="font-size:12px; color:var(--text-secondary);">Catat tanggal, hari, durasi jam, dan besaran honor mengajar per pelatih</p>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <button id="btnHapusMassalKehadiran" class="btn-action-danger" style="display:none; padding:10px 16px; font-size:13px;" onclick="adminHapusMassalKehadiran()">
+                        <i class="fa-solid fa-trash-can"></i> Hapus Terpilih (<span id="countSelectedKehadiran">0</span>)
+                    </button>
+                    <button class="btn-submit-form" style="width:auto; margin-top:0; padding:10px 18px;" onclick="openModalKehadiranAdmin()">
+                        <i class="fa-solid fa-plus"></i> Input Absen & Honor Baru
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th style="width:36px;"><input type="checkbox" id="selectAllKehadiran" onclick="toggleSelectAllKehadiran(this)"></th>
+                            <th>Tanggal & Hari</th>
+                            <th>Pelatih</th>
+                            <th>Sekolah Diajar</th>
+                            <th>Agenda / Kegiatan</th>
+                            <th>Durasi Sesi</th>
+                            <th>Honor Dicatat</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelAdminKehadiran">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 4. HISTORI LOG & AUDIT AKTIVITAS PERANGKAT -->
+        <section id="secLogs" class="glass-card" style="border:1px solid rgba(139, 92, 246, 0.4); display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h3 style="font-size:16px; font-weight:800; color:#c084fc;">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Audit Trail & Histori Aktivitas Perangkat System
+                    </h3>
+                    <p style="font-size:12px; color:var(--text-secondary);">
+                        Rekam histori real-time siapa saja yang Login/Logout, status Baterai (%), Nama Device, Jaringan (Wi-Fi/Selular), IP Address & Aktivitas didalamnya.
+                    </p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th style="width:36px;"><input type="checkbox" id="selectAllLog"></th>
+                            <th>Waktu & Tanggal</th>
+                            <th>User / Pelatih</th>
+                            <th>Jenis Aksi</th>
+                            <th>Baterai & Device Name</th>
+                            <th>Jaringan / Wi-Fi & IP Address</th>
+                            <th>Deskripsi Aktivitas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelSystemLogs">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- MODAL INPUT KEHADIRAN & GAJI PELATIH -->
+    <div id="modalKehadiranAdmin" class="modal-backdrop">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-clipboard-user" style="color:var(--primary);"></i> Catat Kehadiran & Honor Mengajar</h3>
+                <button class="btn-close-modal" onclick="closeModalKehadiranAdmin()">&times;</button>
+            </div>
+            <form onsubmit="handleAdminSubmitKehadiran(event)">
+                <input type="hidden" id="editKehadiranKey" value="">
+                <div class="form-group">
+                    <label>Pilih Pelatih</label>
+                    <select id="selectPelatihAdmin" class="form-control" required>
+                        <!-- Loaded dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <label style="margin-bottom:0;"><i class="fa-solid fa-school" style="color:#38bdf8;"></i> Pilih Sekolah Yang Diajar</label>
+                        <button type="button" class="btn-action-satset" style="background:rgba(56, 189, 248, 0.2); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.4); padding:2px 8px; font-size:11px;" onclick="openModalTambahSekolahCepat()">
+                            <i class="fa-solid fa-plus"></i> + Tambah Sekolah Baru
+                        </button>
+                    </div>
+                    <select id="selectSekolahAdmin" class="form-control">
+                        <!-- Loaded dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tanggal Mengajar</label>
+                    <input type="date" id="inputTanggalAdmin" class="form-control" required>
+                </div>
+                <div class="form-group" style="display:none;">
+                    <label>Nama Agenda / Kegiatan</label>
+                    <input type="text" id="inputKegiatanAdmin" class="form-control" value="Mengajar Latihan Regular">
+                </div>
+                <div class="form-group">
+                    <label>Durasi Sesi (Jam)</label>
+                    <input type="number" id="inputDurasiAdmin" class="form-control" value="2" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Besaran Honor / Gaji Sesi Ini (Rp)</label>
+                    <input type="number" id="inputHonorAdmin" class="form-control" placeholder="Contoh: 150000" required>
+                </div>
+                <button type="submit" class="btn-submit-form"><i class="fa-solid fa-floppy-disk"></i> Simpan Data Kehadiran</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            initAdminDashboard();
+            // Set input date today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById("inputTanggalAdmin").value = today;
+        });
+
+        function openModalKehadiranAdmin() {
+            document.getElementById("modalKehadiranAdmin").classList.add("active");
+        }
+
+        function closeModalKehadiranAdmin() {
+            document.getElementById("modalKehadiranAdmin").classList.remove("active");
+        }
+
+        function handleAdminSubmitKehadiran(e) {
+            e.preventDefault();
+            const editKey = document.getElementById("editKehadiranKey") ? document.getElementById("editKehadiranKey").value : "";
+            const hp = document.getElementById("selectPelatihAdmin").value;
+            const sekolahEl = document.getElementById("selectSekolahAdmin");
+            const sekolahId = sekolahEl ? sekolahEl.value : "";
+            const namaSekolah = sekolahEl && sekolahEl.options[sekolahEl.selectedIndex] ? (sekolahEl.options[sekolahEl.selectedIndex].text.replace(/^[🎓\s]+/, '').trim()) : "";
+            const tgl = document.getElementById("inputTanggalAdmin").value;
+            const keg = document.getElementById("inputKegiatanAdmin").value;
+            const dur = document.getElementById("inputDurasiAdmin").value;
+            const hnr = document.getElementById("inputHonorAdmin").value;
+
+            adminTambahKehadiran(hp, tgl, keg, dur, hnr, editKey, sekolahId, namaSekolah);
+        }
+    </script>
+</body>
+</html>

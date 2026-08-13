@@ -1,0 +1,2740 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superadmin Control Portal - Gaji & Absensi Pelatih</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDK compat -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <style>
+        /* ==========================================================================
+           SUPERADMIN CORE STYLING & DESIGN SYSTEM (FULL STANDALONE 1 FILE)
+           ========================================================================== */
+        :root {
+            --bg-dark: #090d16;
+            --bg-card: rgba(23, 32, 54, 0.8);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --radius-xl: 20px;
+            --radius-lg: 14px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+            --shadow-main: 0 12px 32px rgba(0, 0, 0, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent !important;
+        }
+
+        button, input, select, textarea, a, div {
+            -webkit-tap-highlight-color: transparent !important;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 15% 15%, rgba(139, 92, 246, 0.18) 0px, transparent 50%),
+                radial-gradient(at 85% 85%, rgba(59, 130, 246, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding-bottom: 40px;
+            line-height: 1.5;
+        }
+
+        /* CONTAINER */
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 16px;
+        }
+
+        /* LOGIN BOX SUPERADMIN */
+        .superadmin-auth-container {
+            max-width: 420px;
+            margin: 60px auto 0 auto;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: var(--radius-xl);
+            padding: 32px 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .auth-logo i {
+            font-size: 36px;
+            color: var(--accent-purple);
+            background: rgba(139, 92, 246, 0.2);
+            padding: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(139, 92, 246, 0.4);
+            margin-bottom: 12px;
+        }
+
+        /* NAVBAR / HEADER */
+        .main-header {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: var(--radius-xl);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-main);
+        }
+
+        .logo-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-brand i {
+            font-size: 24px;
+            color: var(--accent-purple);
+            background: rgba(139, 92, 246, 0.18);
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .logo-brand h1 {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-brand p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .user-badge-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge-info {
+            text-align: right;
+        }
+
+        .badge-info .name {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .badge-info .role {
+            font-size: 11px;
+            color: var(--accent-purple);
+            background: rgba(139, 92, 246, 0.15);
+            padding: 2px 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            display: inline-block;
+        }
+
+        .btn-logout {
+            background: rgba(244, 63, 94, 0.15);
+            color: var(--accent-rose);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-logout:hover {
+            background: var(--accent-rose);
+            color: #fff;
+        }
+
+        /* ADMIN TAB NAVIGATION */
+        .admin-tab-nav {
+            display: flex;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.75);
+            padding: 6px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .admin-tab-btn {
+            flex: 1;
+            min-width: 140px;
+            padding: 12px 14px;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .admin-tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .admin-tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        /* CARDS & GLASSMORPHISM */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-main);
+        }
+
+        /* TABLES */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .custom-table th {
+            background: rgba(15, 23, 42, 0.85);
+            color: var(--text-secondary);
+            padding: 12px 16px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .custom-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .custom-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* BADGES STATUS */
+        .badge-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .badge-status.pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-status.success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-status.rejected { background: rgba(244, 63, 94, 0.2); color: #f87171; border: 1px solid rgba(244, 63, 94, 0.3); }
+        .badge-status.info { background: rgba(6, 182, 212, 0.2); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.3); }
+        .badge-status.purple { background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); }
+
+        /* BUTTONS */
+        .btn-action-satset {
+            background: var(--accent-emerald);
+            color: #000;
+            border: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-action-satset:hover {
+            background: #34d399;
+        }
+
+        .btn-action-danger {
+            background: rgba(244, 63, 94, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn-action-danger:hover {
+            background: var(--accent-rose);
+            color: #fff;
+        }
+
+        .btn-submit-form {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s ease;
+        }
+
+        .btn-submit-form:hover {
+            background: #2563eb;
+        }
+
+        /* MODALS & FORMS */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 16px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .modal-backdrop.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 480px;
+            max-height: 88vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 24px;
+            box-shadow: var(--shadow-main);
+            animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-box::-webkit-scrollbar {
+            width: 5px;
+        }
+        .modal-box::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        .modal-box::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.4);
+            border-radius: 4px;
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .btn-close-modal {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        select.form-control option,
+        .form-control option {
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 8px;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        /* GLOBAL FAST LOADING MODAL OVERLAY */
+        .loading-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(9, 13, 22, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-backdrop.active {
+            display: flex;
+        }
+
+        .loading-box {
+            background: #0f172a;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: var(--radius-xl);
+            padding: 32px 40px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            max-width: 360px;
+            width: 90%;
+            animation: modalPop 0.25s ease-out;
+        }
+
+        .spinner-icon {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(59, 130, 246, 0.15);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spinSlow 0.8s linear infinite;
+            margin: 0 auto 16px auto;
+        }
+
+        @keyframes spinSlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .loading-subtext {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .loading-progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .loading-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--accent-emerald));
+            transition: width 0.2s linear;
+        }
+
+        /* MOBILE RESPONSIVE MEDIA QUERIES */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 12px 10px;
+            }
+
+            .main-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+                padding: 16px;
+            }
+
+            .user-badge-header {
+                width: 100%;
+                justify-content: space-between;
+                border-top: 1px solid var(--border-color);
+                padding-top: 12px;
+            }
+
+            .glass-card {
+                padding: 16px;
+                border-radius: var(--radius-lg);
+            }
+
+            .modal-backdrop {
+                padding: 10px;
+                align-items: flex-start;
+            }
+
+            .modal-box {
+                padding: 18px 14px;
+                max-width: 100%;
+                max-height: 85vh;
+                margin: 10px auto;
+                overflow-y: auto;
+            }
+
+            .admin-tab-nav {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 4px;
+                gap: 6px;
+            }
+
+            .admin-tab-btn {
+                flex: 0 0 auto;
+                min-width: max-content;
+                padding: 10px 14px;
+                font-size: 12px;
+            }
+
+            .table-responsive {
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .custom-table th, .custom-table td {
+                padding: 10px 10px;
+                font-size: 12px;
+            }
+
+            .btn-action-satset, .btn-action-danger {
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+
+            .form-control {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. FORM LOGIN SUPERADMIN (JIKA BELUM AUTENTIKASI) -->
+    <div id="superadminLoginView" class="app-container" style="display:block;">
+        <div class="superadmin-auth-container">
+            <div class="auth-logo">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h2 style="font-size:22px; font-weight:800; margin-bottom:4px;">Login Portal Superadmin</h2>
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:24px;">Masukkan Kredensial Akses Kontrol Superadmin</p>
+            
+            <form onsubmit="handleSuperadminLogin(event)">
+                <div class="form-group">
+                    <label><i class="fa-solid fa-user"></i> Username Superadmin</label>
+                    <input type="text" id="superadminUsnInput" class="form-control" placeholder="Ketik 24214160905..." required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-key"></i> Password / PIN</label>
+                    <input type="password" id="superadminPwInput" class="form-control" placeholder="Ketik 160905..." required>
+                </div>
+                <button type="submit" class="btn-submit-form" style="background:var(--accent-purple); color:#fff; font-size:15px; padding:14px; margin-top:16px;">
+                    <i class="fa-solid fa-right-to-bracket"></i> Masuk Sebagai Superadmin
+                </button>
+            </form>
+            <div style="margin-top:20px;">
+                <a href="index.html" style="color:var(--text-secondary); text-decoration:none; font-size:12px;"><i class="fa-solid fa-arrow-left"></i> Halaman Utama</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MAIN DASHBOARD SUPERADMIN (SETELAH LOGGED IN) -->
+    <div id="superadminDashboardView" class="app-container" style="display:none;">
+        <!-- HEADER SUPERADMIN -->
+        <header class="main-header">
+            <div class="logo-brand">
+                <i class="fa-solid fa-crown"></i>
+                <div>
+                    <h1>Portal Superadmin Control Center</h1>
+                    <p>Manajemen Master Akun Pelatih, Absensi, Honor, ACC Pencairan & Audit Logs</p>
+                </div>
+            </div>
+            <div class="user-badge-header">
+                <div class="badge-info">
+                    <div class="name">Super Administrator</div>
+                    <div class="role">Kontrol Penuh System</div>
+                </div>
+                <!-- LOGOUT REDIRECT KE INDEX.HTML -->
+                <button class="btn-logout" onclick="logoutSuperadmin()">
+                    <i class="fa-solid fa-right-from-bracket"></i> Keluar
+                </button>
+            </div>
+        </header>
+
+        <!-- TAB NAVIGATION ADMIN -->
+        <nav class="admin-tab-nav">
+            <button class="admin-tab-btn active" onclick="switchAdminTab('pelatih', this)">
+                <i class="fa-solid fa-users"></i> Master Akun Pelatih
+            </button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('sekolah', this)">
+                <i class="fa-solid fa-school" style="color:#38bdf8;"></i> Kelola & Rekap Sekolah
+            </button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('penarikan', this)">
+                <i class="fa-solid fa-bolt" style="color:#fbbf24;"></i> Pengajuan Pencairan (<span id="countTabPendingPenarikan">0</span>)
+            </button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('kehadiran', this)">
+                <i class="fa-solid fa-calendar-plus"></i> Rekap Kehadiran
+            </button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('setting', this)">
+                <i class="fa-regular fa-calendar-check"></i> Setting Tanggal Cair
+            </button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('logs', this)">
+                <i class="fa-solid fa-clock-rotate-left" style="color:#c084fc;"></i> Histori Log & Perangkat (<span id="countTabLogs">0</span>)
+            </button>
+        </nav>
+
+        <!-- 1. DAFTAR MASTER PELATIH (TAB UTAMA DEFAULT) -->
+        <section id="secMasterPelatih" class="glass-card" style="display:block;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h3 style="font-size:16px; font-weight:700;"><i class="fa-solid fa-users" style="color:var(--accent-purple);"></i> Master Data Akun Pelatih Terdaftar</h3>
+                    <p style="font-size:12px; color:var(--text-secondary);">Kelola status aktif/nonaktif, sembunyikan dana (hide dana), dan izin pencairan khusus</p>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <button id="btnToggleHideDanaGlobal" class="btn-action-satset" style="background:#6366f1; color:#fff; padding:10px 16px; font-size:13px;" onclick="adminToggleHideDanaGlobal()">
+                        <i class="fa-solid fa-eye"></i> Sembunyikan Dana SEMUA Akun Pelatih
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Profil & Nama Pelatih</th>
+                            <th>No HP (Username)</th>
+                            <th>Password (PIN)</th>
+                            <th>Status & Fitur Hide Dana</th>
+                            <th>Akses Pencairan Khusus</th>
+                            <th>Rekening Default Pelatih</th>
+                            <th>Aksi Kontrol Akun</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelMasterPelatih">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 1.5. KELOLA MASTER DATA SEKOLAH & REKAP SEKOLAH -->
+        <section id="secSekolah" class="glass-card" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h3 style="font-size:16px; font-weight:700;"><i class="fa-solid fa-school" style="color:#38bdf8;"></i> Kelola Data Sekolah & Rekap Kehadiran Per Sekolah</h3>
+                    <p style="font-size:12px; color:var(--text-secondary);">Tambah nama sekolah baru dan lihat rekap statistik berapa kali sekolah diajar serta siapa saja pelatihnya</p>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <form onsubmit="handleAdminTambahSekolah(event)" style="display:flex; gap:8px; align-items:center;">
+                        <input type="text" id="inputNamaSekolahBaru" class="form-control" placeholder="Nama Sekolah (mis: SMPN 1)" required style="width:220px; font-size:13px;">
+                        <button type="submit" class="btn-action-satset" style="background:#38bdf8; color:#000; padding:9px 14px; font-size:13px; white-space:nowrap;">
+                            <i class="fa-solid fa-plus"></i> Tambah Sekolah
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TABEL RINGKASAN REKAP SEKOLAH -->
+            <div style="margin-bottom:24px;">
+                <h4 style="font-size:14px; font-weight:700; color:var(--text-primary); margin-bottom:10px;">
+                    <i class="fa-solid fa-chart-pie" style="color:#fbbf24;"></i> Rekap Frekuensi Sekolah Diajar
+                </h4>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Nama Sekolah</th>
+                                <th>Kode Acak Sekolah</th>
+                                <th>Frekuensi Diajar</th>
+                                <th>Daftar Pelatih Yang Mengajar</th>
+                                <th>Total Sesi Jam</th>
+                                <th>Total Honor Tagihan Sekolah</th>
+                                <th>Aksi Admin</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelRekapSekolah">
+                            <!-- Loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. FITUR UTAMA PENCAIRAN TUNAI SAT SET -->
+        <section id="secPencairan" class="glass-card" style="border:1px solid rgba(16, 185, 129, 0.4); display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h2 style="font-size:18px; font-weight:800; color:var(--text-primary);">
+                        <i class="fa-solid fa-bolt" style="color:#fbbf24;"></i> Pengajuan Pencairan Dana Pelatih (Sat Set ACC)
+                    </h2>
+                    <p style="font-size:13px; color:var(--text-secondary);">Seluruh form pengajuan penarikan dari pelatih akan muncul di sini. Klik setujui untuk menyelesaikan pencairan.</p>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <button id="btnHapusMassalPenarikan" class="btn-action-danger" style="display:none; padding:8px 14px; font-size:12px;" onclick="adminHapusMassalPenarikan()">
+                        <i class="fa-solid fa-trash-can"></i> Hapus Terpilih (<span id="countSelectedPenarikan">0</span>)
+                    </button>
+                    <div style="background:rgba(245, 158, 11, 0.15); padding:8px 16px; border-radius:12px; border:1px solid rgba(245, 158, 11, 0.3); color:#fbbf24; font-weight:700; font-size:13px;">
+                        Pending: <span id="countPendingPenarikan">0</span> Antrean
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th style="width:36px;"><input type="checkbox" id="selectAllPenarikan" onclick="toggleSelectAllPenarikan(this)"></th>
+                            <th>Waktu Pengajuan</th>
+                            <th>Nama & No HP Pelatih</th>
+                            <th>Data Bank & Rekening Pelatih</th>
+                            <th>Nominal Cair</th>
+                            <th>Status saat ini</th>
+                            <th>Aksi Kilat (Sat Set)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelAdminPenarikan">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 3. KELOLA ABSENSI & KEHADIRAN MENGAJAR -->
+        <section id="secKehadiran" class="glass-card" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h3 style="font-size:16px; font-weight:700;"><i class="fa-solid fa-calendar-plus" style="color:var(--primary);"></i> Input & Rekap Kehadiran Mengajar Pelatih</h3>
+                    <p style="font-size:12px; color:var(--text-secondary);">Catat tanggal, hari, durasi jam, dan besaran honor mengajar per pelatih</p>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <div style="position:relative; min-width:240px;">
+                        <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#94a3b8; font-size:13px;"></i>
+                        <input type="text" id="searchKehadiranInput" class="form-control" placeholder="Cari Nama Pelatih / Kode Sekolah..." oninput="filterKehadiranAdmin()" style="padding-left:36px; height:38px; font-size:13px; border-radius:8px; border:1px solid rgba(56, 189, 248, 0.3); background:rgba(15, 23, 42, 0.6); color:#fff;">
+                    </div>
+                    <button id="btnHapusMassalKehadiran" class="btn-action-danger" style="display:none; padding:10px 16px; font-size:13px;" onclick="adminHapusMassalKehadiran()">
+                        <i class="fa-solid fa-trash-can"></i> Hapus Terpilih (<span id="countSelectedKehadiran">0</span>)
+                    </button>
+                    <button class="btn-submit-form" style="width:auto; margin-top:0; padding:10px 18px;" onclick="openModalKehadiranAdmin()">
+                        <i class="fa-solid fa-plus"></i> Input Absen & Honor Baru
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Tanggal & Hari</th>
+                            <th>Pelatih</th>
+                            <th>Sekolah Diajar</th>
+                            <th>Durasi Sesi</th>
+                            <th>Honor Dicatat</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelAdminKehadiran">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 4. SETTING TANGGAL PENCAIRAN ADMIN -->
+        <section id="secSettingCair" class="glass-card" style="border:1px solid rgba(245, 158, 11, 0.4); margin-bottom: 20px; display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                <div>
+                    <h3 style="font-size:16px; font-weight:800; color:var(--text-primary);">
+                        <i class="fa-regular fa-calendar-check" style="color:#f59e0b;"></i> Atur Tanggal Jadwal Pencairan Honor
+                    </h3>
+                    <p style="font-size:12px; color:var(--text-secondary);">
+                        Pelatih hanya dapat mengeklik tombol <strong>Tarik Tunai</strong> pada/setelah tanggal yang diatur di bawah ini (kecuali akun yang diberi Akses Pencairan Khusus).
+                    </p>
+                </div>
+                <form onsubmit="handleSaveTglCair(event)" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <input type="date" id="adminSettingTglCair" class="form-control" style="width:auto;" required>
+                    <button type="submit" class="btn-action-satset" style="padding:10px 16px; font-size:13px;">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan Tanggal Cair
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 5. HISTORI LOG & AUDIT AKTIVITAS PERANGKAT (FITUR BARU) -->
+        <section id="secLogs" class="glass-card" style="border:1px solid rgba(139, 92, 246, 0.4); display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h3 style="font-size:16px; font-weight:800; color:#c084fc;">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Audit Trail & Histori Aktivitas Perangkat System
+                    </h3>
+                    <p style="font-size:12px; color:var(--text-secondary);">
+                        Rekam histori real-time siapa saja yang Login/Logout, status Baterai (%), Nama Device, Jaringan (Wi-Fi/Selular), IP Address & Aktivitas didalamnya.
+                    </p>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <input type="text" id="searchLogInput" class="form-control" style="width:180px;" placeholder="🔍 Cari Log..." onkeyup="filterLogsTable()">
+                    <select id="filterLogType" class="form-control" style="width:140px;" onchange="filterLogsTable()">
+                        <option value="">Semua Aksi</option>
+                        <option value="LOGIN">LOGIN</option>
+                        <option value="LOGOUT">LOGOUT</option>
+                        <option value="TARIK_TUNAI">TARIK TUNAI</option>
+                        <option value="ACC_PENCAIRAN">ACC PENCAIRAN</option>
+                        <option value="INPUT_ABSEN">INPUT ABSEN</option>
+                        <option value="HAPUS_DATA">HAPUS DATA</option>
+                    </select>
+                    <button id="btnHapusMassalLog" class="btn-action-danger" style="display:none; padding:10px 16px; font-size:13px;" onclick="adminHapusMassalLog()">
+                        <i class="fa-solid fa-trash-can"></i> Hapus Log Terpilih (<span id="countSelectedLog">0</span>)
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th style="width:36px;"><input type="checkbox" id="selectAllLog" onclick="toggleSelectAllLog(this)"></th>
+                            <th>Waktu & Tanggal</th>
+                            <th>User / Pelatih</th>
+                            <th>Jenis Aksi</th>
+                            <th>Baterai & Device Name</th>
+                            <th>Jaringan / Wi-Fi & IP Address</th>
+                            <th>Deskripsi Aktivitas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelSystemLogs">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- MODAL INPUT & EDIT KEHADIRAN & GAJI PELATIH -->
+    <div id="modalKehadiranAdmin" class="modal-backdrop">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="titleModalKehadiran"><i class="fa-solid fa-clipboard-user" style="color:var(--primary);"></i> Catat Kehadiran & Honor Mengajar</h3>
+                <button class="btn-close-modal" onclick="closeModalKehadiranAdmin()">&times;</button>
+            </div>
+            <form onsubmit="handleAdminSubmitKehadiran(event)">
+                <input type="hidden" id="editKehadiranKey" value="">
+                <div class="form-group">
+                    <label>Pilih Pelatih</label>
+                    <select id="selectPelatihAdmin" class="form-control" required>
+                        <!-- Loaded dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <label style="margin-bottom:0;"><i class="fa-solid fa-school" style="color:#38bdf8;"></i> Pilih Sekolah Yang Diajar</label>
+                        <button type="button" class="btn-action-satset" style="background:rgba(56, 189, 248, 0.2); color:#38bdf8; border:1px solid rgba(56, 189, 248, 0.4); padding:2px 8px; font-size:11px;" onclick="openModalTambahSekolahCepat()">
+                            <i class="fa-solid fa-plus"></i> + Tambah Sekolah Baru
+                        </button>
+                    </div>
+                    <select id="selectSekolahAdmin" class="form-control">
+                        <!-- Loaded dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tanggal Mengajar</label>
+                    <input type="date" id="inputTanggalAdmin" class="form-control" required>
+                </div>
+                <div class="form-group" style="display:none;">
+                    <label>Nama Agenda / Kegiatan</label>
+                    <input type="text" id="inputKegiatanAdmin" class="form-control" value="Mengajar Latihan Regular">
+                </div>
+                <div class="form-group">
+                    <label>Durasi Sesi (Jam)</label>
+                    <input type="number" id="inputDurasiAdmin" class="form-control" value="2" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Besaran Honor / Gaji Sesi Ini (Rp)</label>
+                    <input type="number" id="inputHonorAdmin" class="form-control" placeholder="Contoh: 150000" required>
+                </div>
+                <button type="submit" id="btnSubmitKehadiran" class="btn-submit-form"><i class="fa-solid fa-floppy-disk"></i> Simpan Data Kehadiran</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT SEKOLAH (NAMA & KODE ACAK) -->
+    <div id="modalEditSekolah" class="modal-backdrop">
+        <div class="modal-card">
+            <button class="modal-close-btn" onclick="closeModalEditSekolah()"><i class="fa-solid fa-xmark"></i></button>
+            <h3 style="font-size:16px; font-weight:800; color:var(--text-primary); margin-bottom:16px;">
+                <i class="fa-solid fa-pen-to-square" style="color:#f59e0b;"></i> Edit Master Data Sekolah
+            </h3>
+            <form onsubmit="handleSaveEditSekolah(event)">
+                <input type="hidden" id="editSekolahId">
+                <div class="form-group">
+                    <label style="font-weight:700;">Nama Asli Sekolah</label>
+                    <input type="text" id="editNamaSekolahInput" class="form-control" placeholder="Contoh: SMPN 1 Surabaya" required>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight:700;"><i class="fa-solid fa-key" style="color:#38bdf8;"></i> Kode Acak Sekolah (Privacy Code)</label>
+                    <input type="text" id="editKodeSekolahInput" class="form-control" placeholder="Contoh: 2775ftsch" required style="font-family:monospace; font-weight:700; color:#38bdf8;">
+                    <small style="color:var(--text-secondary); font-size:11px;">Kode ini yang akan tampil di pilihan dropdown dan rekap kehadiran pelatih.</small>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight:700;"><i class="fa-solid fa-toggle-on" style="color:#10b981;"></i> Status Aktif Sekolah</label>
+                    <select id="editStatusSekolahInput" class="form-control" style="font-weight:700;">
+                        <option value="active">🟢 AKTIF (Tampil di Pilihan Sekolah)</option>
+                        <option value="disabled">🔴 NONAKTIFKAN (Sembunyikan dari Pilihan)</option>
+                    </select>
+                    <small style="color:var(--text-secondary); font-size:11px;">Jika dinonaktifkan, sekolah ini tidak akan muncul saat menginput kehadiran baru.</small>
+                </div>
+                <button type="submit" class="btn-submit-form" style="background:#f59e0b; color:#000; font-weight:800;">
+                    <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan Sekolah
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DETAIL DAFTAR PELATIH MENGATUR SEKOLAH -->
+    <div id="modalDetailPelatihSekolah" class="modal-backdrop">
+        <div class="modal-card" style="max-width:720px; border-radius:16px; border:1px solid rgba(56, 189, 248, 0.3); background:rgba(15, 23, 42, 0.95); backdrop-filter:blur(16px); box-shadow: 0 20px 50px rgba(0,0,0,0.6); padding:24px; position:relative;">
+            <button class="modal-close-btn" onclick="closeModalDetailPelatihSekolah()" style="position:absolute; top:18px; right:18px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; transition:all 0.2s;" onhover="this.style.background='rgba(239,68,68,0.3)'">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+                <div style="width:42px; height:42px; border-radius:12px; background:rgba(56, 189, 248, 0.15); border:1px solid rgba(56, 189, 248, 0.3); display:flex; align-items:center; justify-content:center; color:#38bdf8; font-size:20px;">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h3 style="font-size:18px; font-weight:800; color:#f8fafc; margin:0;" id="detailSekolahTitleModal">
+                        Detail Pelatih Mengajar
+                    </h3>
+                    <p id="detailSekolahSubTitleModal" style="color:#94a3b8; font-size:12px; margin:2px 0 0 0;">
+                        Rincian riwayat lengkap sesi mengajar, tanggal, pelatih & honor di sekolah ini.
+                    </p>
+                </div>
+            </div>
+
+            <div style="margin-top:16px;" class="table-responsive">
+                <table class="custom-table" style="font-size:13px; border-collapse:separate; border-spacing:0; width:100%; border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.08);">
+                    <thead>
+                        <tr style="background:rgba(30, 41, 59, 0.8);">
+                            <th style="padding:12px 14px; text-align:center; width:50px;">No</th>
+                            <th style="padding:12px 14px;">Pelatih</th>
+                            <th style="padding:12px 14px;">Tanggal & Waktu</th>
+                            <th style="padding:12px 14px; text-align:center;">Durasi</th>
+                            <th style="padding:12px 14px; text-align:right;">Honor per Sesi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailSekolahTableBody">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; background:rgba(30,41,59,0.5); padding:12px 16px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+                <div style="font-size:12px; color:#94a3b8;">
+                    <i class="fa-solid fa-circle-info" style="color:#38bdf8;"></i> Total Data: <strong id="countDetailPelatihSekolahModal" style="color:#fff;">0 Sesi</strong>
+                </div>
+                <button class="btn-action-satset" style="background:#3b82f6; color:#fff; padding:8px 20px; font-weight:700; border-radius:8px;" onclick="closeModalDetailPelatihSekolah()">
+                    <i class="fa-solid fa-check"></i> Tutup Modal
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Konfigurasi Firebase Realtime Database Resmi
+        const firebaseConfig = {
+          apiKey: "AIzaSyCX_lNiA1LcGBBZe7ouQ16mdIGzyGyQtIY",
+          authDomain: "gaji-36cc2.firebaseapp.com",
+          databaseURL: "https://gaji-36cc2-default-rtdb.firebaseio.com",
+          projectId: "gaji-36cc2",
+          storageBucket: "gaji-36cc2.firebasestorage.app",
+          messagingSenderId: "939605055331",
+          appId: "1:939605055331:web:49453cf6ff9dbe36032556",
+          measurementId: "G-66Y7NTLCYY"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+
+        // KREDENSIAL LOGIN SUPERADMIN DI FILE INI
+        const SUPERADMIN_USN = "24214160905";
+        const SUPERADMIN_PW = "160905";
+
+        let globalHideStatus = false;
+        let isSuperadminAuth = false;
+        let cachedLogsList = [];
+
+        // AUDIT TRAIL LOG ENGINE (INSTANT & SYNCHRONOUS)
+        try {
+            if (navigator.getBattery) {
+                navigator.getBattery().then(b => {
+                    const pct = Math.round(b.level * 100);
+                    const status = b.charging ? "⚡ Charging" : "🔋 Discharging";
+                    window.lastBatteryInfo = `${pct}% (${status})`;
+                });
+            }
+        } catch(e) {}
+
+        function getImmediateDeviceInfo() {
+            let batteryInfo = window.lastBatteryInfo || "88% (Standard)";
+            let networkInfo = navigator.onLine ? "📶 Wi-Fi Active" : "Offline";
+            let deviceName = "Unknown Device";
+            let ipAddress = "Web Access";
+
+            try {
+                const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                if (conn) {
+                    const typeStr = conn.type ? conn.type.toUpperCase() : (conn.effectiveType ? conn.effectiveType.toUpperCase() : "WIFI");
+                    const speed = conn.downlink ? `${conn.downlink} Mbps` : "";
+                    const rtt = conn.rtt ? `Ping ${conn.rtt}ms` : "";
+                    
+                    if (conn.type === 'wifi') {
+                        networkInfo = `📶 Wi-Fi Network (${speed} ${rtt})`.trim();
+                    } else if (conn.type === 'cellular') {
+                        networkInfo = `📱 Data Selular ${typeStr} (${speed})`.trim();
+                    } else {
+                        networkInfo = `📶 Wi-Fi / ${typeStr} (${speed} ${rtt})`.trim();
+                    }
+                }
+            } catch(e) {}
+
+            try {
+                const ua = navigator.userAgent;
+                if (/android/i.test(ua)) {
+                    deviceName = "Android Device";
+                    const match = ua.match(/Android\s+([0-9\.]+)/i);
+                    if (match) deviceName += ` (v${match[1]})`;
+                } else if (/iPhone|iPad|iPod/i.test(ua)) {
+                    deviceName = "Apple iOS Device";
+                } else if (/Windows/i.test(ua)) {
+                    deviceName = "Windows PC";
+                } else if (/Macintosh/i.test(ua)) {
+                    deviceName = "Mac OS Device";
+                } else if (/Linux/i.test(ua)) {
+                    deviceName = "Linux Device";
+                }
+            } catch(e) {}
+
+            return { battery: batteryInfo, network: networkInfo, device: deviceName, ip: ipAddress };
+        }
+
+        function recordSystemLog(userNama, userHp, role, aksi, deskripsi) {
+            try {
+                const info = getImmediateDeviceInfo();
+                const now = new Date().toISOString();
+                const logId = "log_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7);
+                const cleanHp = (userHp || "-").toString().trim().replace(/[^0-9]/g, '');
+
+                const logData = {
+                    id: logId,
+                    userNama: userNama || "Anonim",
+                    userHp: userHp || "-",
+                    role: role || "Pelatih",
+                    aksi: aksi || "AKTIVITAS",
+                    deskripsi: deskripsi || "-",
+                    baterai: info.battery,
+                    jaringan: info.network,
+                    device: info.device,
+                    ip: info.ip,
+                    timestamp: now
+                };
+
+                // SIMPAN PURE HANYA KE DATABASE FIREBASE CLOUD REALTIME DB
+                try {
+                    if (typeof db !== 'undefined' && db) {
+                        db.ref(`keuangan/logs/${logId}`).set(logData);
+                        db.ref(`keuangan/activity_logs/${logId}`).set(logData);
+                        if (cleanHp && cleanHp.length >= 8) {
+                            db.ref(`keuangan/pelatih/${cleanHp}/activityLogs/${logId}`).set(logData);
+                        }
+                    }
+                } catch(e) {}
+
+                if (typeof renderLogsFromAllSources === 'function') {
+                    renderLogsFromAllSources();
+                }
+
+            } catch(err) {
+                console.error("Gagal mencatat log ke Firebase:", err);
+            }
+        }
+
+        function renderLogsFromAllSources() {
+            let combined = [];
+
+            // BACA PURE HANYA DARI FIREBASE CLOUD REALTIME DATABASE
+            if (window.firebaseLogsCache && Array.isArray(window.firebaseLogsCache)) {
+                combined = [...window.firebaseLogsCache];
+            }
+
+            // Sort descending (Terbaru di paling atas)
+            combined.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+            cachedLogsList = combined;
+
+            const badgeLogs = document.getElementById("countTabLogs");
+            if (badgeLogs) badgeLogs.innerText = cachedLogsList.length;
+
+            renderLogsTable(cachedLogsList);
+        }
+
+        // CHECK AUTH ON LOAD
+        document.addEventListener("DOMContentLoaded", () => {
+            checkSuperadminAuth();
+            const today = new Date().toISOString().split('T')[0];
+            if (document.getElementById("inputTanggalAdmin")) {
+                document.getElementById("inputTanggalAdmin").value = today;
+            }
+        });
+
+        function checkSuperadminAuth() {
+            let isAuth = true;
+            try {
+                sessionStorage.setItem("superadmin_auth", "true");
+            } catch(e) {}
+            
+            isSuperadminAuth = true;
+
+            const loginView = document.getElementById("superadminLoginView");
+            const dashboardView = document.getElementById("superadminDashboardView");
+
+            if (loginView) loginView.style.display = "none";
+            if (dashboardView) dashboardView.style.display = "block";
+            initSuperadminDashboard();
+        }
+
+        function handleSuperadminLogin(e) {
+            e.preventDefault();
+            const usnInput = document.getElementById("superadminUsnInput");
+            const pwInput = document.getElementById("superadminPwInput");
+            const usn = usnInput ? usnInput.value.trim() : "";
+            const pw = pwInput ? pwInput.value.trim() : "";
+
+            if (usn === SUPERADMIN_USN && pw === SUPERADMIN_PW) {
+                isSuperadminAuth = true;
+                try {
+                    sessionStorage.setItem("superadmin_auth", "true");
+                } catch(err) {}
+
+                recordSystemLog("Super Administrator", SUPERADMIN_USN, "Superadmin", "LOGIN", "Superadmin berhasil login ke Portal Control Center");
+
+                showLoading("Autentikasi Superadmin Berhasil...", 1);
+                setTimeout(() => {
+                    hideLoading();
+                    const loginView = document.getElementById("superadminLoginView");
+                    const dashboardView = document.getElementById("superadminDashboardView");
+                    if (loginView) loginView.style.display = "none";
+                    if (dashboardView) dashboardView.style.display = "block";
+                    initSuperadminDashboard();
+                }, 300);
+            } else {
+                recordSystemLog("Super Administrator", usn || "-", "Superadmin", "LOGIN_GAGAL", `Percobaan login Superadmin gagal dengan username: ${usn}`);
+                alert(`❌ Username atau Password Superadmin SALAH!\n\nPastikan:\nUsername: ${SUPERADMIN_USN}\nPassword: ${SUPERADMIN_PW}`);
+            }
+        }
+
+        // LOGOUT LOGIC
+        function logoutSuperadmin() {
+            recordSystemLog("Super Administrator", SUPERADMIN_USN, "Superadmin", "LOGOUT", "Superadmin logout dari portal");
+            isSuperadminAuth = false;
+            try {
+                sessionStorage.removeItem("pelatih_admin_auth");
+                sessionStorage.removeItem("superadmin_auth");
+            } catch(e) {}
+            
+            const loginView = document.getElementById("superadminLoginView");
+            const dashboardView = document.getElementById("superadminDashboardView");
+            if (loginView) loginView.style.display = "block";
+            if (dashboardView) dashboardView.style.display = "none";
+
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 100);
+        }
+
+        // Helper Format Rupiah
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka || 0);
+        }
+
+        // Helper Format Tanggal Indonesia
+        function formatTanggalIndo(dateStr) {
+            if (!dateStr) return "-";
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            const hari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"][d.getDay()];
+            const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"][d.getMonth()];
+            const jam = String(d.getHours()).padStart(2, '0');
+            const menit = String(d.getMinutes()).padStart(2, '0');
+            return `${hari}, ${d.getDate()} ${bulan} ${d.getFullYear()} ${jam}:${menit} WIB`;
+        }
+
+        function formatTanggalRingkas(dateStr) {
+            if (!dateStr) return "-";
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            const hari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"][d.getDay()];
+            const bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"][d.getMonth()];
+            return `${hari}, ${d.getDate()} ${bulan} ${d.getFullYear()}`;
+        }
+
+        // FAST LOADING SYSTEM (MAX 10 DETIK)
+        let loadingTimer = null;
+        let loadingInterval = null;
+
+        function ensureLoadingModalExists() {
+            if (!document.getElementById("globalLoadingModal")) {
+                const div = document.createElement("div");
+                div.id = "globalLoadingModal";
+                div.className = "loading-backdrop";
+                div.innerHTML = `
+                    <div class="loading-box">
+                        <div class="spinner-icon"></div>
+                        <div class="loading-text" id="globalLoadingTitle">Memproses Data...</div>
+                        <div class="loading-subtext" id="globalLoadingSub">Mohon tunggu sebentar (Max 10 detik)</div>
+                        <div class="loading-progress-bar">
+                            <div class="loading-progress-fill" id="globalLoadingProgress"></div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(div);
+            }
+        }
+
+        function showLoading(title = "Memproses Data...", maxSeconds = 10) {
+            ensureLoadingModalExists();
+            const modal = document.getElementById("globalLoadingModal");
+            const titleEl = document.getElementById("globalLoadingTitle");
+            const progressEl = document.getElementById("globalLoadingProgress");
+            
+            if (titleEl) titleEl.innerText = title;
+            if (progressEl) progressEl.style.width = "0%";
+            if (modal) modal.classList.add("active");
+
+            if (loadingTimer) clearTimeout(loadingTimer);
+            if (loadingInterval) clearInterval(loadingInterval);
+
+            let startTime = Date.now();
+            let durationMs = maxSeconds * 1000;
+
+            loadingInterval = setInterval(() => {
+                let elapsed = Date.now() - startTime;
+                let pct = Math.min(100, (elapsed / durationMs) * 100);
+                if (progressEl) progressEl.style.width = `${pct}%`;
+            }, 100);
+
+            loadingTimer = setTimeout(() => {
+                hideLoading();
+                alert("⚠️ Waktu koneksi habis (Timeout 10s). Mohon periksa jaringan internet Anda dan coba lagi.");
+            }, durationMs);
+        }
+
+        function hideLoading() {
+            if (loadingTimer) {
+                clearTimeout(loadingTimer);
+                loadingTimer = null;
+            }
+            if (loadingInterval) {
+                clearInterval(loadingInterval);
+                loadingInterval = null;
+            }
+            const modal = document.getElementById("globalLoadingModal");
+            if (modal) modal.classList.remove("active");
+        }
+
+        // TAB SWITCHER
+        function switchAdminTab(tabName, btnEl) {
+            document.querySelectorAll(".admin-tab-btn").forEach(b => b.classList.remove("active"));
+            if (btnEl) btnEl.classList.add("active");
+
+            const secMaster = document.getElementById("secMasterPelatih");
+            const secSekolah = document.getElementById("secSekolah");
+            const secPencairan = document.getElementById("secPencairan");
+            const secKehadiran = document.getElementById("secKehadiran");
+            const secSetting = document.getElementById("secSettingCair");
+            const secLogs = document.getElementById("secLogs");
+
+            if (secMaster) secMaster.style.display = (tabName === 'pelatih') ? 'block' : 'none';
+            if (secSekolah) secSekolah.style.display = (tabName === 'sekolah') ? 'block' : 'none';
+            if (secPencairan) secPencairan.style.display = (tabName === 'penarikan') ? 'block' : 'none';
+            if (secKehadiran) secKehadiran.style.display = (tabName === 'kehadiran') ? 'block' : 'none';
+            if (secSetting) secSetting.style.display = (tabName === 'setting') ? 'block' : 'none';
+            if (secLogs) secLogs.style.display = (tabName === 'logs') ? 'block' : 'none';
+        }
+
+        function initSuperadminDashboard() {
+            renderRekapSekolahAdmin();
+
+            // Realtime Tanggal Cair Config
+            db.ref(`keuangan/config/tglCair`).on('value', snapshot => {
+                const tglInput = document.getElementById("adminSettingTglCair");
+                if (tglInput) tglInput.value = snapshot.val() || "";
+            });
+
+            // Realtime Global Hide Dana Config
+            db.ref(`keuangan/config/hideDanaGlobal`).on('value', snapshot => {
+                globalHideStatus = snapshot.val() === true;
+                const btnGlobal = document.getElementById("btnToggleHideDanaGlobal");
+                if (btnGlobal) {
+                    if (globalHideStatus) {
+                        btnGlobal.style.background = "#f59e0b";
+                        btnGlobal.style.color = "#000";
+                        btnGlobal.innerHTML = `<i class="fa-solid fa-eye-slash"></i> Global Hide Dana: AKTIF (Uang Disembunyikan u/ Semua)`;
+                    } else {
+                        btnGlobal.style.background = "#6366f1";
+                        btnGlobal.style.color = "#fff";
+                        btnGlobal.innerHTML = `<i class="fa-solid fa-eye"></i> Sembunyikan Dana SEMUA Akun Pelatih`;
+                    }
+                }
+            });
+
+            // Realtime Master Data Sekolah (Superadmin Portal)
+            db.ref(`keuangan/sekolah`).on('value', snapshotSekolah => {
+                const selectSekolah = document.getElementById("selectSekolahAdmin");
+                const currentVal = selectSekolah ? selectSekolah.value : "";
+                let htmlOptions = `<option value="">-- Pilih Sekolah (Opsional) --</option>`;
+
+                let masterSekolahMap = new Map();
+                let masterSekolahKodeMap = new Map();
+                let masterSekolahResetMap = new Map();
+                if (snapshotSekolah.exists()) {
+                    snapshotSekolah.forEach(c => {
+                        const val = c.val();
+                        const namaSekolah = (typeof val === 'string') ? val : (val ? val.namaSekolah : "");
+                        if (namaSekolah) {
+                            const kode = (typeof val === 'object' && val.kodeSekolah) ? val.kodeSekolah : (c.key.substring(0, 6).toLowerCase() + "sch");
+                            const status = (typeof val === 'object' && val.status) ? val.status : "active";
+                            const resetOffset = (typeof val === 'object' && val.resetOffset) ? Number(val.resetOffset || 0) : 0;
+                            masterSekolahMap.set(c.key, namaSekolah);
+                            masterSekolahKodeMap.set(c.key, kode);
+                            masterSekolahResetMap.set(c.key, resetOffset);
+                            if (status === "active") {
+                                htmlOptions += `<option value="${c.key}">🔑 ${kode} — (${namaSekolah})</option>`;
+                            }
+                        }
+                    });
+                }
+
+                if (selectSekolah) {
+                    selectSekolah.innerHTML = htmlOptions;
+                    if (currentVal && masterSekolahMap.has(currentVal)) {
+                        selectSekolah.value = currentVal;
+                    }
+                }
+
+                window.masterSekolahMap = masterSekolahMap;
+                window.masterSekolahKodeMap = masterSekolahKodeMap;
+                window.masterSekolahResetMap = masterSekolahResetMap;
+                renderRekapSekolahAdmin();
+            });
+
+            // Realtime Master Pelatih
+            db.ref(`keuangan/pelatih`).on('value', snapshot => {
+                const selectPelatih = document.getElementById("selectPelatihAdmin");
+                const listPelatihTable = document.getElementById("tabelMasterPelatih");
+                if (selectPelatih) selectPelatih.innerHTML = `<option value="">-- Pilih Pelatih --</option>`;
+                if (listPelatihTable) listPelatihTable.innerHTML = "";
+
+                let pelatihMap = new Map();
+
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const p = child.val();
+                        if (p) {
+                            const hp = p.noHp || child.key;
+                            if (hp === "24214160905") return; // Sembunyikan akun Superadmin dari Master Pelatih
+                            pelatihMap.set(hp, {
+                                noHp: hp,
+                                nama: p.nama || "Pelatih",
+                                statusAccount: p.statusAccount || "active",
+                                hideDana: p.hideDana === true,
+                                allowCairKhusus: p.allowCairKhusus === true,
+                                fotoUrl: p.fotoUrl || "",
+                                tglLahir: p.tglLahir || "-",
+                                bankDefault: p.bankDefault || "",
+                                norekDefault: p.norekDefault || "",
+                                pemilikDefault: p.pemilikDefault || ""
+                            });
+                        }
+                    });
+                }
+
+                // Fallback jika node `keuangan/pelatih` belum terisi / baru berupa log aktivitas
+                if (pelatihMap.size === 0 && window.firebaseLogsCache && Array.isArray(window.firebaseLogsCache)) {
+                    window.firebaseLogsCache.forEach(log => {
+                        if (log.userHp && log.userHp !== "-" && log.userHp !== "24214160905" && log.role === "Pelatih") {
+                            if (!pelatihMap.has(log.userHp)) {
+                                pelatihMap.set(log.userHp, {
+                                    noHp: log.userHp,
+                                    nama: log.userNama || "Pelatih",
+                                    statusAccount: "active",
+                                    hideDana: false,
+                                    allowCairKhusus: false,
+                                    fotoUrl: "",
+                                    tglLahir: "-",
+                                    bankDefault: "",
+                                    norekDefault: "",
+                                    pemilikDefault: ""
+                                });
+                            }
+                        }
+                    });
+                }
+
+                pelatihMap.forEach((p, noHp) => {
+                    const nama = p.nama;
+                    const isAktif = p.statusAccount !== "disabled";
+                    const isAccountHiddenDirectly = p.hideDana === true;
+                    const isAllowCairKhusus = p.allowCairKhusus === true;
+
+                    if (selectPelatih && isAktif) {
+                        selectPelatih.innerHTML += `<option value="${noHp}">${nama} (${noHp})</option>`;
+                    }
+
+                    if (listPelatihTable) {
+                        const badgeStatus = isAktif 
+                            ? '<span class="badge-status success">Aktif</span>'
+                            : '<span class="badge-status rejected">Nonaktif</span>';
+
+                        let badgeHideDana = '';
+                        if (globalHideStatus) {
+                            badgeHideDana = '<span class="badge-status pending" style="background:#f59e0b; color:#000; font-size:10px;" title="Tersembunyi karena Mode Global Hide aktif"><i class="fa-solid fa-eye-slash"></i> Global Hide</span>';
+                        } else if (isAccountHiddenDirectly) {
+                            badgeHideDana = '<span class="badge-status pending" style="font-size:10px;"><i class="fa-solid fa-eye-slash"></i> Dana Hidden</span>';
+                        }
+
+                        const badgeCairKhusus = isAllowCairKhusus
+                            ? '<span class="badge-status success" style="font-size:10px;"><i class="fa-solid fa-key"></i> Cair Kapan Saja</span>'
+                            : '<span class="badge-status pending" style="background:rgba(100,116,139,0.2); color:#94a3b8; border-color:rgba(100,116,139,0.3); font-size:10px;">Ikut Jadwal</span>';
+
+                        const safeNamaEscaped = nama.replace(/'/g, "\\'");
+
+                        const btnToggleStatus = isAktif
+                            ? `<button class="btn-action-danger" style="padding:5px 10px; font-size:11px; margin:0;" onclick="adminToggleStatusPelatih('${noHp}', 'disabled')"><i class="fa-solid fa-ban"></i> Nonaktifkan</button>`
+                            : `<button class="btn-action-satset" style="padding:5px 10px; font-size:11px; margin:0;" onclick="adminToggleStatusPelatih('${noHp}', 'active')"><i class="fa-solid fa-check"></i> Aktifkan</button>`;
+
+                        const btnToggleHideDana = isAccountHiddenDirectly
+                            ? `<button class="btn-action-satset" style="background:#8b5cf6; color:#fff; padding:5px 10px; font-size:11px; margin:0;" onclick="adminToggleHideDanaPelatih('${noHp}', false)"><i class="fa-solid fa-eye"></i> Show Dana</button>`
+                            : `<button class="btn-action-satset" style="background:rgba(139, 92, 246, 0.2); color:#c084fc; border:1px solid rgba(139, 92, 246, 0.4); padding:5px 10px; font-size:11px; margin:0;" onclick="adminToggleHideDanaPelatih('${noHp}', true)"><i class="fa-solid fa-eye-slash"></i> Hide Dana</button>`;
+
+                        const btnToggleCairKhusus = isAllowCairKhusus
+                            ? `<button class="btn-action-danger" style="padding:5px 10px; font-size:11px; margin:0;" onclick="adminToggleAllowCairKhusus('${noHp}', false)"><i class="fa-solid fa-lock"></i> Kunci Jadwal</button>`
+                            : `<button class="btn-action-satset" style="background:#06b6d4; color:#fff; padding:5px 10px; font-size:11px; margin:0;" onclick="adminToggleAllowCairKhusus('${noHp}', true)"><i class="fa-solid fa-key"></i> Buka Cair Khusus</button>`;
+
+                        const btnHapus = `<button class="btn-action-danger" style="padding:4px 8px; font-size:11px; margin-left:4px;" onclick="adminHapusPelatih('${noHp}', '${safeNamaEscaped}')"><i class="fa-solid fa-trash"></i> Hapus</button>`;
+
+                        const fotoHTML = p.fotoUrl 
+                            ? `<div style="display:flex; align-items:center; gap:10px;">
+                                <img src="${p.fotoUrl}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #10b981; cursor:pointer;" onclick="previewFotoPelatihAdmin('${p.fotoUrl}', '${safeNamaEscaped}')" title="Klik untuk memperbesar foto">
+                                <div>
+                                    <strong style="font-size:13px;">${nama}</strong><br>
+                                    <span class="badge-status success" style="font-size:9px; padding:1px 6px;"><i class="fa-solid fa-camera"></i> Foto Terpasang</span>
+                                </div>
+                               </div>`
+                            : `<div style="display:flex; align-items:center; gap:10px;">
+                                <div style="width:40px; height:40px; border-radius:50%; background:rgba(100, 116, 139, 0.2); color:#64748b; display:flex; align-items:center; justify-content:center; border:1px dashed #64748b; font-size:16px;">
+                                    <i class="fa-solid fa-user-xmark"></i>
+                                </div>
+                                <div>
+                                    <strong style="font-size:13px;">${nama}</strong><br>
+                                    <span class="badge-status pending" style="font-size:9px; padding:1px 6px; background:rgba(100,116,139,0.15); color:#94a3b8; border-color:rgba(100,116,139,0.3);"><i class="fa-solid fa-circle-minus"></i> Belum Ada Foto</span>
+                                </div>
+                               </div>`;
+
+                        const displayPw = p.tglLahir && p.tglLahir !== "-" ? p.tglLahir : `<span style="color:#64748b; font-size:12px; font-style:italic;">Belum set</span>`;
+
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${fotoHTML}</td>
+                            <td><strong style="color:#38bdf8;">${noHp}</strong></td>
+                            <td><code style="background:rgba(59, 130, 246, 0.15); color:#60a5fa; padding:4px 10px; border-radius:6px; font-weight:800; font-family:monospace; border:1px solid rgba(59, 130, 246, 0.3);"><i class="fa-solid fa-key" style="font-size:10px;"></i> ${displayPw}</code></td>
+                            <td>${badgeStatus} ${badgeHideDana}</td>
+                            <td>${badgeCairKhusus}</td>
+                            <td>${p.bankDefault ? `${p.bankDefault} - ${p.norekDefault} a.n ${p.pemilikDefault}` : '<span style="color:#64748b;">Belum set</span>'}</td>
+                            <td>
+                                <div style="display:inline-flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                                    ${btnToggleHideDana}
+                                    ${btnToggleStatus}
+                                    ${btnToggleCairKhusus}
+                                </div>
+                            </td>
+                        `;
+                        listPelatihTable.appendChild(tr);
+                    }
+                });
+                if (listPelatihTable && listPelatihTable.children.length === 0) {
+                    listPelatihTable.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">Belum ada data pelatih terdaftar di database.</td></tr>`;
+                }
+                updateSelectedPelatihCount();
+            });
+
+            // Realtime Kehadiran
+            db.ref(`keuangan/kehadiran`).on('value', snapshot => {
+                let list = [];
+                snapshot.forEach(child => {
+                    list.push({ id: child.key, ...child.val() });
+                });
+                list.reverse();
+
+                window.cachedKehadiranList = list;
+                renderRekapSekolahAdmin();
+                renderKehadiranTableAdmin();
+            });
+
+            // Realtime Penarikan Dana
+            db.ref(`keuangan/penarikan`).on('value', snapshot => {
+                const tbody = document.getElementById("tabelAdminPenarikan");
+                if (!tbody) return;
+                tbody.innerHTML = "";
+
+                let pendingCount = 0;
+                let penarikanList = [];
+                snapshot.forEach(child => {
+                    const item = child.val();
+                    penarikanList.push({ id: child.key, ...item });
+                    if (item.status === "menunggu") pendingCount++;
+
+                    let statusBadge = item.status === "disetujui" 
+                        ? '<span class="badge-status success">DITRANSFER (SELESAI)</span>'
+                        : (item.status === "ditolak" ? '<span class="badge-status rejected">DITOLAK</span>' : '<span class="badge-status pending">MENUNGGU ACC ADMIN</span>');
+
+                    let actionBtns = item.status === "menunggu" ? `
+                        <button class="btn-action-satset" onclick="accPenarikanSatSet('${child.key}', 'disetujui')">
+                            <i class="fa-solid fa-bolt"></i> SETUJUI & CAIRKAN (SAT SET)
+                        </button>
+                        <button class="btn-action-danger" style="margin-left:6px;" onclick="accPenarikanSatSet('${child.key}', 'ditolak')">
+                            Tolak
+                        </button>
+                    ` : `<span style="color:#64748b; font-size:12px;">Selesai Diproses</span>`;
+
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td><input type="checkbox" class="cb-penarikan" value="${child.key}" onclick="updateSelectedPenarikanCount()"></td>
+                        <td>${formatTanggalIndo(item.waktuPengajuan)}</td>
+                        <td><strong>${item.namaPelatih}</strong><br><small style="color:#94a3b8;">${item.noHp}</small></td>
+                        <td style="background:rgba(59, 130, 246, 0.1); border-radius:8px;">
+                            <strong>${item.bank}</strong><br>
+                            <span style="color:#60a5fa; font-size:14px; font-weight:700;">${item.norek}</span><br>
+                            <small>a.n ${item.namaPemilik}</small>
+                        </td>
+                        <td style="color:#34d399; font-weight:800; font-size:15px;">${formatRupiah(item.nominal)}</td>
+                        <td>${statusBadge}</td>
+                        <td>${actionBtns}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                window.cachedPenarikanList = penarikanList;
+                renderRekapSekolahAdmin();
+
+                const badgePending = document.getElementById("countPendingPenarikan");
+                if (badgePending) badgePending.innerText = pendingCount;
+                const badgeTabPending = document.getElementById("countTabPendingPenarikan");
+                if (badgeTabPending) badgeTabPending.innerText = pendingCount;
+                updateSelectedPenarikanCount();
+            });
+
+            // REALTIME SYSTEM LOGS LISTENER (MULTI-NODE PERSISTENCE AGGREGATOR)
+            syncAllFirebaseLogNodes();
+
+            function syncAllFirebaseLogNodes() {
+                db.ref(`keuangan/logs`).on('value', snap1 => {
+                    let collectedMap = new Map();
+
+                    if (snap1.exists()) {
+                        snap1.forEach(c => {
+                            const val = c.val();
+                            if (val && typeof val === 'object') {
+                                const k = val.id || c.key;
+                                collectedMap.set(k, { id: k, ...val });
+                            }
+                        });
+                    }
+
+                    // 2. Path Global `keuangan/activity_logs`
+                    db.ref(`keuangan/activity_logs`).once('value', snap2 => {
+                        if (snap2.exists()) {
+                            snap2.forEach(c => {
+                                const val = c.val();
+                                if (val && typeof val === 'object') {
+                                    const k = val.id || c.key;
+                                    collectedMap.set(k, { id: k, ...val });
+                                }
+                            });
+                        }
+
+                        // 3. Path User Profile Pelatih `keuangan/pelatih/{noHp}/activityLogs`
+                        db.ref(`keuangan/pelatih`).once('value', snap3 => {
+                            if (snap3.exists()) {
+                                snap3.forEach(pSnap => {
+                                    const p = pSnap.val();
+                                    if (p && p.activityLogs && typeof p.activityLogs === 'object') {
+                                        Object.keys(p.activityLogs).forEach(lk => {
+                                            const val = p.activityLogs[lk];
+                                            if (val && typeof val === 'object') {
+                                                const k = val.id || lk;
+                                                collectedMap.set(k, { id: k, ...val });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+
+                            if (collectedMap.size === 0) {
+                                recordSystemLog("Super Administrator", SUPERADMIN_USN, "Superadmin", "LOGIN", "Superadmin Control Center berhasil terhubung ke Firebase Cloud Database");
+                            } else {
+                                window.firebaseLogsCache = Array.from(collectedMap.values());
+                                renderLogsFromAllSources();
+                            }
+                        });
+                    });
+                });
+            }
+
+            syncAllFirebaseLogNodes();
+        }
+
+        // RENDER LOGS TABLE WITH FILTER & SEARCH
+        function renderLogsTable(logsArray) {
+            const tbody = document.getElementById("tabelSystemLogs");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            if (logsArray.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">Belum ada histori log aktivitas yang tercatat.</td></tr>`;
+                updateSelectedLogCount();
+                return;
+            }
+
+            logsArray.forEach(item => {
+                let badgeAksi = '<span class="badge-status info">AKTIVITAS</span>';
+                if (item.aksi === "LOGIN") badgeAksi = '<span class="badge-status success"><i class="fa-solid fa-right-to-bracket"></i> LOGIN</span>';
+                else if (item.aksi === "LOGOUT") badgeAksi = '<span class="badge-status rejected"><i class="fa-solid fa-right-from-bracket"></i> LOGOUT</span>';
+                else if (item.aksi === "LOGIN_GAGAL") badgeAksi = '<span class="badge-status rejected"><i class="fa-solid fa-shield-cat"></i> LOGIN GAGAL</span>';
+                else if (item.aksi === "TARIK_TUNAI") badgeAksi = '<span class="badge-status pending"><i class="fa-solid fa-hand-holding-dollar"></i> TARIK TUNAI</span>';
+                else if (item.aksi === "ACC_PENCAIRAN") badgeAksi = '<span class="badge-status success"><i class="fa-solid fa-bolt"></i> ACC PENCAIRAN</span>';
+                else if (item.aksi === "HAPUS_DATA") badgeAksi = '<span class="badge-status rejected"><i class="fa-solid fa-trash"></i> HAPUS DATA</span>';
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><input type="checkbox" class="cb-log" value="${item.id}" onclick="updateSelectedLogCount()"></td>
+                    <td><strong>${formatTanggalIndo(item.timestamp)}</strong></td>
+                    <td><strong>${item.userNama}</strong><br><small style="color:#94a3b8;">${item.userHp}</small> <span class="badge-status purple" style="font-size:9px;">${item.role}</span></td>
+                    <td>${badgeAksi}</td>
+                    <td>
+                        <i class="fa-solid fa-mobile-screen" style="color:var(--primary);"></i> <strong>${item.device || 'Mobile/PC'}</strong><br>
+                        <small style="color:#34d399;"><i class="fa-solid fa-battery-three-quarters"></i> Baterai: ${item.baterai || 'Unknown'}</small>
+                    </td>
+                    <td>
+                        <i class="fa-solid fa-wifi" style="color:#f59e0b;"></i> <strong>${item.jaringan || 'Wi-Fi'}</strong><br>
+                        <small style="color:#60a5fa;"><i class="fa-solid fa-network-wired"></i> IP: ${item.ip || 'Local'}</small>
+                    </td>
+                    <td style="font-size:12px; color:#e2e8f0;">${item.deskripsi}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            updateSelectedLogCount();
+        }
+
+        function filterLogsTable() {
+            const query = (document.getElementById("searchLogInput")?.value || "").toLowerCase();
+            const typeFilter = document.getElementById("filterLogType")?.value || "";
+
+            const filtered = cachedLogsList.filter(item => {
+                const matchQuery = (item.userNama || "").toLowerCase().includes(query) ||
+                                   (item.userHp || "").toLowerCase().includes(query) ||
+                                   (item.deskripsi || "").toLowerCase().includes(query) ||
+                                   (item.ip || "").toLowerCase().includes(query) ||
+                                   (item.device || "").toLowerCase().includes(query);
+                
+                const matchType = typeFilter === "" || item.aksi === typeFilter;
+                return matchQuery && matchType;
+            });
+
+            renderLogsTable(filtered);
+        }
+
+        function toggleSelectAllLog(masterCb) {
+            const cbs = document.querySelectorAll(".cb-log");
+            cbs.forEach(cb => cb.checked = masterCb.checked);
+            updateSelectedLogCount();
+        }
+
+        function updateSelectedLogCount() {
+            const selected = document.querySelectorAll(".cb-log:checked");
+            const master = document.getElementById("selectAllLog");
+            const allCbs = document.querySelectorAll(".cb-log");
+            if (master && allCbs.length > 0) {
+                master.checked = (selected.length === allCbs.length);
+            }
+            const btnHapus = document.getElementById("btnHapusMassalLog");
+            const countSpan = document.getElementById("countSelectedLog");
+            if (btnHapus && countSpan) {
+                countSpan.innerText = selected.length;
+                btnHapus.style.display = selected.length > 0 ? "inline-flex" : "none";
+            }
+        }
+
+        function adminHapusMassalLog() {
+            const selected = document.querySelectorAll(".cb-log:checked");
+            if (selected.length === 0) {
+                alert("❌ Pilih minimal 1 catatan log yang ingin dihapus!");
+                return;
+            }
+
+            const count = selected.length;
+            if (confirm(`⚠️ [VERIFIKASI 1/2] Apakah Anda YAKIN ingin menghapus ${count} histori log aktivitas yang dicentang?`)) {
+                const check = prompt(`🚨 [VERIFIKASI 2/2 - VERIFIKASI GANDA]\nKetik 'HAPUS' (huruf besar semua) untuk memproses penghapusan ${count} catatan log:`);
+                
+                if (check === "HAPUS") {
+                    showLoading(`Menghapus ${count} Histori Log...`, 10);
+                    let updates = {};
+                    selected.forEach(cb => {
+                        updates[`keuangan/logs/${cb.value}`] = null;
+                    });
+                    db.ref().update(updates).then(() => {
+                        hideLoading();
+                        recordSystemLog("Super Administrator", SUPERADMIN_USN, "Superadmin", "HAPUS_DATA", `Menghapus massal ${count} data audit log`);
+                        alert(`✅ VERIFIKASI BERHASIL! ${count} histori log aktivitas berhasil dihapus permanen.`);
+                    }).catch(err => {
+                        hideLoading();
+                        alert("❌ Gagal menghapus log: " + err.message);
+                    });
+                } else {
+                    alert("❌ Verifikasi 2 gagal / dibatalkan. Histori log aman.");
+                }
+            }
+        }
+
+        // HANDLERS & CONTROL FUNCTIONS
+        function handleAdminTambahSekolah(e) {
+            e.preventDefault();
+            const inputEl = document.getElementById("inputNamaSekolahBaru");
+            const namaSekolah = inputEl ? inputEl.value.trim() : "";
+
+            if (!namaSekolah) {
+                alert("❌ Masukkan nama sekolah!");
+                return;
+            }
+
+            showLoading("Menyimpan Data Sekolah Baru...", 10);
+            const newRef = db.ref(`keuangan/sekolah`).push();
+            const generatedKode = (Math.floor(1000 + Math.random() * 9000)) + "sch";
+            newRef.set({
+                id: newRef.key,
+                namaSekolah: namaSekolah,
+                kodeSekolah: generatedKode,
+                createdAt: new Date().toISOString()
+            }).then(() => {
+                hideLoading();
+                if (inputEl) inputEl.value = "";
+                alert(`🎓 Sekolah "${namaSekolah}" (Kode: ${generatedKode}) berhasil ditambahkan!`);
+            }).catch(err => {
+                hideLoading();
+                alert("❌ Gagal menyimpan sekolah: " + err.message);
+            });
+        }
+
+        function adminHapusSekolah(sekolahId, namaSekolah) {
+            if (confirm(`Apakah Anda yakin ingin menghapus data sekolah "${namaSekolah}"?`)) {
+                showLoading("Menghapus Data Sekolah...", 10);
+                db.ref(`keuangan/sekolah/${sekolahId}`).remove().then(() => {
+                    hideLoading();
+                    alert(`✅ Sekolah "${namaSekolah}" berhasil dihapus.`);
+                }).catch(err => {
+                    hideLoading();
+                    alert("❌ Gagal menghapus: " + err.message);
+                });
+            }
+        }
+
+        function adminResetSaldoSekolah(sekolahId, namaSekolah, currentTotal) {
+            if (confirm(`🔄 RESET TAGIHAN SEKOLAH KE RP 0:\n\nApakah Anda yakin ingin mereset saldo tagihan honor "${namaSekolah}" (saat ini ${formatRupiah(currentTotal)}) menjadi Rp 0?\n\nCatatan: Ketika ada sesi mengajar baru di sekolah ini, total tagihan akan otomatis bertambah lagi mulai dari 0.`)) {
+                showLoading("Mereset Saldo Tagihan Sekolah...", 10);
+                
+                db.ref(`keuangan/sekolah/${sekolahId}`).once('value', snapshot => {
+                    const existingVal = snapshot.val();
+                    const existingOffset = (typeof existingVal === 'object' && existingVal.resetOffset) ? Number(existingVal.resetOffset || 0) : 0;
+                    const newResetOffset = existingOffset + currentTotal;
+
+                    const updateData = (typeof existingVal === 'object') ? {
+                        resetOffset: newResetOffset,
+                        updatedAt: new Date().toISOString()
+                    } : {
+                        namaSekolah: namaSekolah,
+                        resetOffset: newResetOffset,
+                        updatedAt: new Date().toISOString()
+                    };
+
+                    db.ref(`keuangan/sekolah/${sekolahId}`).update(updateData).then(() => {
+                        hideLoading();
+                        alert(`✅ Saldo tagihan honor "${namaSekolah}" berhasil di-reset ke Rp 0!\nSesi mengajar berikutnya akan menambah saldo dari Rp 0.`);
+                    }).catch(err => {
+                        hideLoading();
+                        alert("❌ Gagal mereset saldo: " + err.message);
+                    });
+                });
+            }
+        }
+
+        function adminEditSekolah(sekolahId, namaSekolahLama) {
+            document.getElementById("editSekolahId").value = sekolahId;
+            document.getElementById("editNamaSekolahInput").value = namaSekolahLama || "";
+            const defaultKode = sekolahId ? (sekolahId.substring(0, 6).toLowerCase() + "sch") : "1001sch";
+            document.getElementById("editKodeSekolahInput").value = defaultKode;
+            document.getElementById("editStatusSekolahInput").value = "active";
+
+            db.ref(`keuangan/sekolah/${sekolahId}`).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    if (data.namaSekolah) document.getElementById("editNamaSekolahInput").value = data.namaSekolah;
+                    if (data.kodeSekolah) document.getElementById("editKodeSekolahInput").value = data.kodeSekolah;
+                    if (data.status) document.getElementById("editStatusSekolahInput").value = data.status;
+                }
+            });
+
+            document.getElementById("modalEditSekolah").classList.add("active");
+        }
+
+        function closeModalEditSekolah() {
+            document.getElementById("modalEditSekolah").classList.remove("active");
+        }
+
+        function adminToggleStatusSekolah(sekolahId, currentStatus, namaSekolah) {
+            const newStatus = currentStatus === 'disabled' ? 'active' : 'disabled';
+            const actionTxt = newStatus === 'disabled' ? 'MENONAKTIFKAN' : 'MENGAKTIFKAN';
+            if (confirm(`Apakah Anda yakin ingin ${actionTxt} sekolah "${namaSekolah}"?`)) {
+                showLoading("Memperbarui Status Sekolah...", 10);
+                db.ref(`keuangan/sekolah/${sekolahId}`).update({
+                    status: newStatus,
+                    updatedAt: new Date().toISOString()
+                }).then(() => {
+                    hideLoading();
+                    alert(`✅ Sekolah "${namaSekolah}" berhasil di-${newStatus === 'disabled' ? 'nonaktifkan (disembunyikan dari pilihan)' : 'aktifkan kembali'}!`);
+                }).catch(err => {
+                    hideLoading();
+                    alert("❌ Gagal memperbarui status: " + err.message);
+                });
+            }
+        }
+
+        function openModalDetailPelatihSekolah(sekolahId, namaSekolah) {
+            document.getElementById("detailSekolahTitleModal").innerText = `Detail Pelatih Mengajar — ${namaSekolah}`;
+            const tbody = document.getElementById("detailSekolahTableBody");
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Memuat data detail...</td></tr>`;
+
+            const modal = document.getElementById("modalDetailPelatihSekolah");
+            modal.classList.add("active");
+
+            db.ref(`keuangan/kehadiran`).once('value', snapshot => {
+                tbody.innerHTML = "";
+                let count = 0;
+                if (snapshot.exists()) {
+                    snapshot.forEach(c => {
+                        const item = c.val();
+                        const sklId = item.sekolahId || "";
+                        const nmSkl = item.namaSekolah || "";
+                        const isMatch = (sekolahId && sklId === sekolahId) || (nmSkl.toLowerCase() === namaSekolah.toLowerCase()) || (nmSkl.toLowerCase().includes(namaSekolah.toLowerCase())) || (!sekolahId && !sklId && namaSekolah === "Sekolah Regular");
+
+                        if (isMatch) {
+                            count++;
+                            const tr = document.createElement("tr");
+                            tr.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
+                            tr.innerHTML = `
+                                <td style="text-align:center; color:#94a3b8; font-weight:700;">${count}</td>
+                                <td style="padding:10px 14px;">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <div style="width:28px; height:28px; border-radius:50%; background:rgba(56, 189, 248, 0.15); border:1px solid rgba(56, 189, 248, 0.3); display:flex; align-items:center; justify-content:center; color:#38bdf8; font-size:12px;">
+                                            <i class="fa-solid fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <strong style="color:#f8fafc; font-size:13px; display:block;">${item.namaPelatih || '-'}</strong>
+                                            <small style="color:#94a3b8; font-size:11px;">(${item.noHp || '-'})</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="padding:10px 14px;">
+                                    <span style="background:rgba(251, 191, 36, 0.12); color:#fbbf24; border:1px solid rgba(251, 191, 36, 0.25); padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; white-space:nowrap; display:inline-flex; align-items:center; gap:6px;">
+                                        <i class="fa-regular fa-calendar-check" style="font-size:11px;"></i> ${formatTanggalIndo(item.tanggal)}
+                                    </span>
+                                </td>
+                                <td style="padding:10px 14px; text-align:center; font-weight:600; color:#e2e8f0;">${item.durasiJam || 2} Jam</td>
+                                <td style="padding:10px 14px; text-align:right; color:#10b981; font-weight:800; font-size:14px;">${formatRupiah(item.honor || 0)}</td>
+                            `;
+                            tbody.appendChild(tr);
+                        }
+                    });
+                }
+
+                const counterEl = document.getElementById("countDetailPelatihSekolahModal");
+                if (counterEl) counterEl.innerText = `${count} Sesi`;
+
+                if (count === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:24px;">Belum ada data kehadiran pelatih yang tercatat untuk sekolah ini.</td></tr>`;
+                }
+            });
+        }
+
+        function closeModalDetailPelatihSekolah() {
+            document.getElementById("modalDetailPelatihSekolah").classList.remove("active");
+        }
+
+        function handleSaveEditSekolah(e) {
+            e.preventDefault();
+            const sekolahId = document.getElementById("editSekolahId").value;
+            const cleanNamaBaru = document.getElementById("editNamaSekolahInput").value.trim();
+            const cleanKodeBaru = document.getElementById("editKodeSekolahInput").value.trim().toLowerCase();
+            const statusBaru = document.getElementById("editStatusSekolahInput").value;
+
+            if (!sekolahId || !cleanNamaBaru || !cleanKodeBaru) {
+                alert("❌ Isi nama sekolah dan kode acak sekolah!");
+                return;
+            }
+
+            showLoading(`Memperbarui Master Sekolah & Rekap...`, 10);
+
+            db.ref(`keuangan/sekolah/${sekolahId}`).update({
+                namaSekolah: cleanNamaBaru,
+                kodeSekolah: cleanKodeBaru,
+                status: statusBaru,
+                updatedAt: new Date().toISOString()
+            }).then(() => {
+                db.ref(`keuangan/kehadiran`).once('value', snapshot => {
+                    let updates = {};
+                    if (snapshot.exists()) {
+                        snapshot.forEach(c => {
+                            const item = c.val();
+                            if (item.sekolahId === sekolahId) {
+                                updates[`keuangan/kehadiran/${c.key}/namaSekolah`] = cleanNamaBaru;
+                            }
+                        });
+                    }
+
+                    if (Object.keys(updates).length > 0) {
+                        db.ref().update(updates).then(() => {
+                            hideLoading();
+                            closeModalEditSekolah();
+                            alert(`✅ Data Sekolah & Kode Acak "${cleanKodeBaru}" berhasil diperbarui!`);
+                        }).catch(err => {
+                            hideLoading();
+                            alert("❌ Gagal update rekap kehadiran: " + err.message);
+                        });
+                    } else {
+                        hideLoading();
+                        closeModalEditSekolah();
+                        alert(`✅ Data Sekolah & Kode Acak "${cleanKodeBaru}" berhasil diperbarui!`);
+                    }
+                });
+            }).catch(err => {
+                hideLoading();
+                alert("❌ Gagal memperbarui sekolah: " + err.message);
+            });
+        }
+
+        function renderRekapSekolahAdmin() {
+            const tbody = document.getElementById("tabelRekapSekolah");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            const masterMap = window.masterSekolahMap || new Map();
+            const kehadiranList = window.cachedKehadiranList || [];
+
+            let rekapMap = new Map();
+
+            const penarikanList = window.cachedPenarikanList || [];
+
+            // Hitung total penarikan disetujui (ACC) per pelatih (by noHp & namaPelatih)
+            let approvedPenarikanPerHp = new Map();
+            let approvedPenarikanPerNama = new Map();
+            penarikanList.forEach(p => {
+                if (p.status === "disetujui") {
+                    const hpKey = (p.noHp || "").trim();
+                    const nmKey = (p.namaPelatih || "").trim().toLowerCase();
+                    const nom = Number(p.nominal || 0);
+
+                    if (hpKey) approvedPenarikanPerHp.set(hpKey, (approvedPenarikanPerHp.get(hpKey) || 0) + nom);
+                    if (nmKey) approvedPenarikanPerNama.set(nmKey, (approvedPenarikanPerNama.get(nmKey) || 0) + nom);
+                }
+            });
+
+            // Hitung total kotor per pelatih di seluruh sekolah
+            let totalKotorPerHp = new Map();
+            let totalKotorPerNama = new Map();
+            kehadiranList.forEach(item => {
+                const hpKey = (item.noHp || "").trim();
+                const nmKey = (item.namaPelatih || "").trim().toLowerCase();
+                const honor = Number(item.honor || 0);
+
+                if (hpKey) totalKotorPerHp.set(hpKey, (totalKotorPerHp.get(hpKey) || 0) + honor);
+                if (nmKey) totalKotorPerNama.set(nmKey, (totalKotorPerNama.get(nmKey) || 0) + honor);
+            });
+
+            masterMap.forEach((namaSekolah, key) => {
+                rekapMap.set(key, {
+                    id: key,
+                    namaSekolah: namaSekolah,
+                    frekuensiCount: 0,
+                    pelatihList: [],
+                    totalJam: 0,
+                    totalHonorTagihan: 0,
+                    totalHonorDicairkan: 0
+                });
+            });
+
+            kehadiranList.forEach(item => {
+                const sklId = item.sekolahId || "";
+                let mapKey = sklId;
+
+                if (!mapKey) {
+                    let foundKey = "";
+                    masterMap.forEach((val, k) => {
+                        if (val === item.namaSekolah) foundKey = k;
+                    });
+                    mapKey = foundKey || item.namaSekolah || "Sekolah Regular";
+                }
+
+                const nmSekolah = (sklId && masterMap.has(sklId)) 
+                    ? masterMap.get(sklId) 
+                    : (item.namaSekolah || "Sekolah Regular");
+
+                if (!rekapMap.has(mapKey)) {
+                    rekapMap.set(mapKey, {
+                        id: sklId || "",
+                        namaSekolah: nmSekolah,
+                        frekuensiCount: 0,
+                        pelatihList: [],
+                        totalJam: 0,
+                        totalHonorTagihan: 0,
+                        totalHonorDicairkan: 0
+                    });
+                }
+
+                const data = rekapMap.get(mapKey);
+                data.namaSekolah = nmSekolah;
+                data.frekuensiCount += 1;
+
+                const itemHonor = Number(item.honor || 0);
+                const hpKey = (item.noHp || "").trim();
+                const nmKey = (item.namaPelatih || "").trim().toLowerCase();
+
+                // Hitung porsi honor yang sudah dicairkan untuk sesi mengajar ini
+                let itemCair = 0;
+                let totKotor = 0;
+                let totCair = 0;
+
+                if (hpKey && totalKotorPerHp.has(hpKey)) {
+                    totKotor = totalKotorPerHp.get(hpKey) || 0;
+                    totCair = approvedPenarikanPerHp.get(hpKey) || 0;
+                } else if (nmKey && totalKotorPerNama.has(nmKey)) {
+                    totKotor = totalKotorPerNama.get(nmKey) || 0;
+                    totCair = approvedPenarikanPerNama.get(nmKey) || 0;
+                }
+
+                if (totKotor > 0 && totCair > 0) {
+                    const rasioCair = Math.min(1, totCair / totKotor);
+                    itemCair = itemHonor * rasioCair;
+                }
+
+                if (item.namaPelatih) {
+                    data.pelatihList.push({
+                        nama: item.namaPelatih,
+                        tanggal: item.tanggal || "",
+                        honor: itemHonor
+                    });
+                }
+                data.totalJam += Number(item.durasiJam || 2);
+                data.totalHonorTagihan += itemHonor;
+                data.totalHonorDicairkan += itemCair;
+            });
+
+            rekapMap.forEach((val, key) => {
+                let pelatihDisplay = `<span style="color:#64748b; font-size:12px; font-style:italic;">Belum ada riwayat mengajar</span>`;
+                if (val.pelatihList.length > 0) {
+                    const itemsHTML = val.pelatihList.map(p => {
+                        const tglFormatted = p.tanggal ? formatTanggalRingkas(p.tanggal) : "-";
+                        return `
+                            <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(30, 41, 59, 0.7); border:1px solid rgba(56, 189, 248, 0.25); border-radius:8px; padding:4px 10px; margin:2px 4px 2px 0; backdrop-filter:blur(4px);">
+                                <div style="display:flex; align-items:center; gap:5px;">
+                                    <i class="fa-solid fa-user-gear" style="color:#38bdf8; font-size:11px;"></i>
+                                    <strong style="color:#f8fafc; font-size:12px; font-weight:600;">${p.nama}</strong>
+                                </div>
+                                <span style="background:rgba(251, 191, 36, 0.15); color:#fbbf24; border:1px solid rgba(251, 191, 36, 0.3); padding:2px 7px; border-radius:6px; font-size:10px; font-weight:700; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;">
+                                    <i class="fa-regular fa-calendar-check" style="font-size:10px;"></i> ${tglFormatted}
+                                </span>
+                            </div>
+                        `;
+                    }).join("");
+                    pelatihDisplay = `
+                        <div style="max-height:110px; overflow-y:auto; padding:2px 0; display:flex; flex-wrap:wrap; gap:4px; cursor:pointer;" onclick="openModalDetailPelatihSekolah('${val.id || ''}', '${val.namaSekolah.replace(/'/g, "\\'")}')" title="Klik untuk lihat detail lengkap daftar pelatih">
+                            ${itemsHTML}
+                            <div style="width:100%; text-align:right; margin-top:2px;">
+                                <span style="font-size:10px; color:#38bdf8; font-weight:700; text-decoration:underline;"><i class="fa-solid fa-up-right-from-square"></i> Lihat Detail Lengkap (${val.pelatihList.length})</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const frekuensiDisplay = val.frekuensiCount > 0
+                    ? `<span class="badge-status success" style="font-size:12px; font-weight:700;"><i class="fa-solid fa-check"></i> Diajar ${val.frekuensiCount}x</span>`
+                    : `<span class="badge-status pending" style="font-size:11px; background:rgba(100,116,139,0.15); color:#94a3b8;"><i class="fa-solid fa-circle-minus"></i> Belum ada rekap</span>`;
+
+                const kodeSekolah = window.masterSekolahKodeMap && val.id ? (window.masterSekolahKodeMap.get(val.id) || (val.id.substring(0, 6).toLowerCase() + "sch")) : (val.id ? val.id.substring(0, 6).toLowerCase() + "sch" : "-");
+
+                const safeSklId = (val.id || "").replace(/'/g, "\\'");
+                const safeSklNama = (val.namaSekolah || "").replace(/'/g, "\\'");
+                const btnEdit = val.id ? `<button class="btn-action-satset" style="background:#f59e0b; color:#000; padding:6px 14px; font-size:12px; font-weight:700;" onclick="adminEditSekolah('${safeSklId}', '${safeSklNama}')"><i class="fa-solid fa-pen-to-square"></i> Edit Data & Kode</button>` : `<span style="color:#64748b;">-</span>`;
+
+                const resetOffset = (window.masterSekolahResetMap && val.id && window.masterSekolahResetMap.has(val.id)) ? window.masterSekolahResetMap.get(val.id) : 0;
+
+                const rawHonorKotor = val.totalHonorTagihan;
+                const netHonorKotor = Math.max(0, rawHonorKotor - resetOffset);
+
+                const btnResetSaldo = (val.id && netHonorKotor > 0)
+                    ? `<button class="btn-action-danger" style="padding:6px 12px; font-size:12px; font-weight:700; margin-left:6px;" onclick="adminResetSaldoSekolah('${safeSklId}', '${safeSklNama}', ${netHonorKotor})"><i class="fa-solid fa-rotate-left"></i> Reset Saldo ke 0</button>`
+                    : ``;
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><strong style="font-size:14px; color:#38bdf8;"><i class="fa-solid fa-school"></i> ${val.namaSekolah}</strong></td>
+                    <td><code style="background:rgba(56, 189, 248, 0.15); color:#38bdf8; padding:3px 10px; border-radius:6px; font-weight:800; font-family:monospace; border:1px dashed rgba(56, 189, 248, 0.4);"><i class="fa-solid fa-key" style="font-size:10px;"></i> ${kodeSekolah}</code></td>
+                    <td>${frekuensiDisplay}</td>
+                    <td>${pelatihDisplay}</td>
+                    <td>${val.totalJam} Jam</td>
+                    <td style="color:#10b981; font-weight:800; font-size:15px;">${formatRupiah(netHonorKotor)}</td>
+                    <td>
+                        <div style="display:inline-flex; gap:4px; align-items:center;">
+                            ${btnEdit}
+                            ${btnResetSaldo}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (tbody.children.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#94a3b8; padding:20px;">Belum ada data sekolah terdaftar di database. Silakan klik "+ Tambah Sekolah".</td></tr>`;
+            }
+        }
+
+        function renderKehadiranTableAdmin() {
+            const tbody = document.getElementById("tabelAdminKehadiran");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            const list = window.cachedKehadiranList || [];
+            const searchInput = document.getElementById("searchKehadiranInput");
+            const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
+
+            let countRendered = 0;
+
+            list.forEach(item => {
+                const nmSekolah = item.namaSekolah || "Sekolah Regular";
+                const sklId = item.sekolahId || "";
+                const kodeSekolah = (window.masterSekolahKodeMap && sklId && window.masterSekolahKodeMap.has(sklId))
+                    ? window.masterSekolahKodeMap.get(sklId)
+                    : (sklId ? sklId.substring(0, 6).toLowerCase() + "sch" : "REGULAR");
+
+                const safeKegiatan = (item.kegiatan || "Mengajar Latihan Regular").replace(/'/g, "\\'");
+                const safeNamaPelatih = item.namaPelatih || "Pelatih";
+                const safeNoHp = item.noHp || "-";
+                const safeTanggal = item.tanggal || "";
+                const safeHonor = Number(item.honor || 0);
+
+                // Pencarian berdasarkan Nama Pelatih, Nomor HP, atau Kode Sekolah
+                if (query) {
+                    const matchNama = safeNamaPelatih.toLowerCase().includes(query);
+                    const matchHp = safeNoHp.toLowerCase().includes(query);
+                    const matchKode = kodeSekolah.toLowerCase().includes(query);
+                    const matchSekolah = nmSekolah.toLowerCase().includes(query);
+
+                    if (!matchNama && !matchHp && !matchKode && !matchSekolah) {
+                        return; // lewati jika tidak cocok dengan query pencarian
+                    }
+                }
+
+                countRendered++;
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><strong>${safeTanggal ? formatTanggalIndo(safeTanggal) : '-'}</strong></td>
+                    <td>${safeNamaPelatih.replace(/'/g, "\\'")} (${safeNoHp})</td>
+                    <td><code style="background:rgba(56, 189, 248, 0.15); color:#38bdf8; padding:3px 8px; border-radius:6px; font-weight:800; border:1px dashed rgba(56, 189, 248, 0.4);" title="${nmSekolah}"><i class="fa-solid fa-key" style="font-size:10px;"></i> ${kodeSekolah}</code></td>
+                    <td>${item.durasiJam || 2} Jam</td>
+                    <td style="color:#10b981; font-weight:700;">${formatRupiah(safeHonor)}</td>
+                    <td>
+                        <button class="btn-action-satset" style="background:#f59e0b; color:#000;" onclick="openEditKehadiranModal('${item.id}', '${safeNoHp}', '${safeTanggal}', '${safeKegiatan}', ${item.durasiJam || 2}, ${safeHonor}, '${sklId}', '${nmSekolah.replace(/'/g, "\\'")}')">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                        </button>
+                        <button class="btn-action-danger" style="margin-left:4px;" onclick="hapusKehadiranAdmin('${item.id}')">
+                            <i class="fa-solid fa-trash"></i> Hapus
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (countRendered === 0) {
+                tbody.innerHTML = query 
+                    ? `<tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:20px;">Tidak ditemukan data kehadiran yang cocok dengan pencarian "<strong>${query}</strong>".</td></tr>`
+                    : `<tr><td colspan="6" style="text-align:center; color:#94a3b8; padding:20px;">Belum ada data kehadiran pelatih yang tercatat.</td></tr>`;
+            }
+            updateSelectedKehadiranCount();
+        }
+
+        function filterKehadiranAdmin() {
+            renderKehadiranTableAdmin();
+        }
+
+        function openModalTambahSekolahCepat() {
+            const nama = prompt("🎓 Tambah Nama Sekolah Baru:\nMasukkan nama sekolah (misal: SMPN 1 / SMA 2):");
+            if (!nama || nama.trim() === "") return;
+
+            const cleanNama = nama.trim();
+            showLoading("Menyimpan Data Sekolah Baru...", 10);
+            const newRef = db.ref(`keuangan/sekolah`).push();
+            const generatedKode = (Math.floor(1000 + Math.random() * 9000)) + "sch";
+            newRef.set({
+                id: newRef.key,
+                namaSekolah: cleanNama,
+                kodeSekolah: generatedKode,
+                createdAt: new Date().toISOString()
+            }).then(() => {
+                hideLoading();
+                setTimeout(() => {
+                    const selectEl = document.getElementById("selectSekolahAdmin");
+                    if (selectEl) selectEl.value = newRef.key;
+                }, 300);
+                alert(`🎓 Sekolah "${cleanNama}" berhasil ditambahkan & otomatis terpilih!`);
+            }).catch(err => {
+                hideLoading();
+                alert("❌ Gagal menyimpan sekolah: " + err.message);
+            });
+        }
+
+        function adminToggleAllowCairKhusus(noHp, allowTarget) {
+            const txt = allowTarget ? "MEMBUKA AKSI PENCAIRAN KHUSUS (Pelatih bisa tarik tunai kapan saja)" : "MENGUNCI KEMBALI FITUR PENCAIRAN (Ikut tanggal cair global)";
+            if (confirm(`Apakah Anda yakin ingin ${txt} untuk akun pelatih (${noHp})?`)) {
+                showLoading("Memproses Akses Pencairan...", 10);
+                db.ref(`keuangan/pelatih/${noHp}`).update({
+                    allowCairKhusus: allowTarget
+                }).then(() => {
+                    hideLoading();
+                    recordSystemLog("Super Administrator", noHp, "Superadmin", "ALLOW_CAIR_KHUSUS", `Akses pencairan khusus akun (${noHp}): ${allowTarget}`);
+                    alert(allowTarget ? `🎉 Berhasil! Akun pelatih (${noHp}) sekarang dapat mengeklik tombol Tarik Tunai kapan saja!` : `🔒 Berhasil! Akses pencairan khusus dikunci kembali dan mengikuti tanggal cair global.`);
+                }).catch(err => {
+                    hideLoading();
+                    alert("❌ Gagal memproses: " + err.message);
+                });
+            }
+        }
+
+        function openModalKehadiranAdmin() {
+            document.getElementById("editKehadiranKey").value = "";
+            document.getElementById("titleModalKehadiran").innerHTML = `<i class="fa-solid fa-clipboard-user" style="color:var(--primary);"></i> Catat Kehadiran & Honor Mengajar`;
+            document.getElementById("btnSubmitKehadiran").innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Simpan Data Kehadiran`;
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById("inputTanggalAdmin").value = today;
+            document.getElementById("inputKegiatanAdmin").value = "Mengajar Latihan Regular";
+            document.getElementById("inputDurasiAdmin").value = "2";
+            document.getElementById("inputHonorAdmin").value = "";
+            document.getElementById("modalKehadiranAdmin").classList.add("active");
+        }
+
+        function openEditKehadiranModal(key, hp, tgl, keg, dur, honor, sklId = "", nmSekolah = "") {
+            document.getElementById("editKehadiranKey").value = key;
+            document.getElementById("titleModalKehadiran").innerHTML = `<i class="fa-solid fa-pen-to-square" style="color:var(--accent-amber);"></i> Edit Data Kehadiran & Honor`;
+            document.getElementById("btnSubmitKehadiran").innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Perbarui Data Kehadiran`;
+            
+            document.getElementById("selectPelatihAdmin").value = hp;
+            if (document.getElementById("selectSekolahAdmin")) {
+                document.getElementById("selectSekolahAdmin").value = sklId || "";
+            }
+            document.getElementById("inputTanggalAdmin").value = tgl;
+            document.getElementById("inputKegiatanAdmin").value = keg;
+            document.getElementById("inputDurasiAdmin").value = dur;
+            document.getElementById("inputHonorAdmin").value = honor;
+            
+            document.getElementById("modalKehadiranAdmin").classList.add("active");
+        }
+
+        function closeModalKehadiranAdmin() {
+            document.getElementById("modalKehadiranAdmin").classList.remove("active");
+        }
+
+        function handleAdminSubmitKehadiran(e) {
+            e.preventDefault();
+            const editKey = document.getElementById("editKehadiranKey").value;
+            const hp = document.getElementById("selectPelatihAdmin").value;
+            const sekolahEl = document.getElementById("selectSekolahAdmin");
+            const sekolahId = sekolahEl ? sekolahEl.value : "";
+            const namaSekolah = sekolahEl && sekolahEl.options[sekolahEl.selectedIndex] ? (sekolahEl.options[sekolahEl.selectedIndex].text.replace(/^[🎓\s]+/, '').trim()) : "";
+            const tgl = document.getElementById("inputTanggalAdmin").value;
+            const keg = document.getElementById("inputKegiatanAdmin").value;
+            const dur = document.getElementById("inputDurasiAdmin").value;
+            const hnr = document.getElementById("inputHonorAdmin").value;
+
+            adminTambahKehadiran(hp, tgl, keg, dur, hnr, editKey, sekolahId, namaSekolah);
+        }
+
+        function handleSaveTglCair(e) {
+            e.preventDefault();
+            const tgl = document.getElementById("adminSettingTglCair").value;
+            adminSimpanTanggalCair(tgl);
+        }
+
+        function adminTambahKehadiran(noHp, tanggal, kegiatan, durasiJam, honor, editKey = "", sekolahId = "", namaSekolah = "") {
+            if (!noHp || !tanggal || !honor) {
+                alert("❌ Pilih pelatih, tanggal, dan nominal honor mengajar!");
+                return;
+            }
+
+            showLoading("Menyimpan Data Kehadiran...", 10);
+            db.ref(`keuangan/pelatih/${noHp}`).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    const pelatih = snapshot.val();
+                    
+                    if (editKey) {
+                        db.ref(`keuangan/kehadiran/${editKey}`).update({
+                            noHp: noHp,
+                            namaPelatih: pelatih.nama,
+                            sekolahId: sekolahId || "",
+                            namaSekolah: namaSekolah || "Sekolah Regular",
+                            tanggal: tanggal,
+                            kegiatan: kegiatan || "Mengajar Latihan",
+                            durasiJam: Number(durasiJam || 2),
+                            honor: Number(honor),
+                            updatedAt: new Date().toISOString()
+                        }).then(() => {
+                            hideLoading();
+                            recordSystemLog("Super Administrator", noHp, "Superadmin", "INPUT_ABSEN", `Edit Kehadiran Coach ${pelatih.nama} (${noHp}): Rp ${honor}`);
+                            alert(`✅ Data Kehadiran Coach ${pelatih.nama} berhasil diperbarui!`);
+                            closeModalKehadiranAdmin();
+                        }).catch(err => {
+                            hideLoading();
+                            alert("❌ Gagal menyimpan: " + err.message);
+                        });
+                    } else {
+                        const refKehadiran = db.ref(`keuangan/kehadiran`).push();
+                        refKehadiran.set({
+                            id: refKehadiran.key,
+                            noHp: noHp,
+                            namaPelatih: pelatih.nama,
+                            sekolahId: sekolahId || "",
+                            namaSekolah: namaSekolah || "Sekolah Regular",
+                            tanggal: tanggal,
+                            kegiatan: kegiatan || "Mengajar Latihan",
+                            durasiJam: Number(durasiJam || 2),
+                            statusAbsen: "Hadir",
+                            honor: Number(honor),
+                            createdAt: new Date().toISOString()
+                        }).then(() => {
+                            hideLoading();
+                            recordSystemLog("Super Administrator", noHp, "Superadmin", "INPUT_ABSEN", `Input Kehadiran Baru Coach ${pelatih.nama} (${noHp}): Rp ${honor}`);
+                            alert(`✅ Kehadiran & Honor Mengajar Coach ${pelatih.nama} berhasil dicatat!`);
+                            closeModalKehadiranAdmin();
+                        }).catch(err => {
+                            hideLoading();
+                            alert("❌ Gagal menyimpan: " + err.message);
+                        });
+                    }
+                } else {
+                    hideLoading();
+                    alert("❌ Akun pelatih tidak ditemukan!");
+                }
+            }).catch(err => {
+                hideLoading();
+                alert("❌ Koneksi terhambat: " + err.message);
+            });
+        }
+
+        function accPenarikanSatSet(keyPenarikan, statusTarget) {
+            if (confirm(`Apakah Anda yakin ingin memproses pengajuan pencairan ini menjadi: ${statusTarget.toUpperCase()}?`)) {
+                showLoading(`Memproses ACC Status (${statusTarget.toUpperCase()})...`, 10);
+                db.ref(`keuangan/penarikan/${keyPenarikan}`).update({
+                    status: statusTarget,
+                    processedAt: new Date().toISOString()
+                }).then(() => {
+                    hideLoading();
+                    recordSystemLog("Super Administrator", "-", "Superadmin", "ACC_PENCAIRAN", `Proses ACC Penarikan (${keyPenarikan}) -> ${statusTarget.toUpperCase()}`);
+                    alert(`⚡ BERHASIL SAT SET! Status pencairan telah diperbarui menjadi ${statusTarget.toUpperCase()}.`);
+                }).catch(err => {
+                    hideLoading();
+                    alert("❌ Gagal memproses: " + err.message);
+                });
+            }
+        }
+
+        function hapusKehadiranAdmin(keyKehadiran) {
+            if (confirm("Hapus data kehadiran ini? Honor terkait akan dikurangi secara otomatis.")) {
+                showLoading("Menghapus Data Kehadiran...", 10);
+                db.ref(`keuangan/kehadiran/${keyKehadiran}`).remove().then(() => {
+                    hideLoading();
+                    recordSystemLog("Super Administrator", "-", "Superadmin", "HAPUS_DATA", `Hapus data kehadiran ID: ${keyKehadiran}`);
+                    alert("✅ Data kehadiran berhasil dihapus.");
+                }).catch(err => {
+                    hideLoading();
+                    alert("❌ Gagal menghapus: " + err.message);
+                });
+            }
+        }
+
+        function adminSimpanTanggalCair(tglBaru) {
+            showLoading("Menyimpan Tanggal Cair...", 10);
+            db.ref(`keuangan/config/tglCair`).set(tglBaru).then(() => {
+                hideLoading();
+                recordSystemLog("Super Administrator", "-", "Superadmin", "SETTING_TGL_CAIR", `Atur tanggal cair global -> ${tglBaru || 'Bebas Kapan Saja'}`);
+                alert(tglBaru ? `✅ Berhasil mengatur jadwal pencairan honor pada tanggal: ${formatTanggalIndo(tglBaru)}` : `✅ Jadwal pencairan dikosongkan (pencairan dibuka setiap hari).`);
+            }).catch(err => {
+                hideLoading();
+                alert("❌ Gagal menyimpan jadwal pencairan: " + err.message);
+            });
+        }
+
+        function adminToggleStatusPelatih(noHp, statusTarget) {
+            const statusTxt = statusTarget === "disabled" ? "NONAKTIFKAN" : "AKTIFKAN";
+            if (confirm(`Apakah Anda yakin ingin me-${statusTxt} akun pelatih (${noHp})?`)) {
+                showLoading(`Memproses Status Akun (${statusTxt})...`, 10);
+                db.ref(`keuangan/pelatih/${noHp}`).update({
+                    statusAccount: statusTarget
+                }).then(() => {
+                    hideLoading();
+                    recordSystemLog("Super Administrator", noHp, "Superadmin", "AKUN_STATUS", `Ubah status akun (${noHp}) -> ${statusTarget}`);
+                    alert(`✅ Akun pelatih berhasil di-${statusTxt}kan!`);
+                }).catch(err => {
+                    hideLoading();
+                    alert("❌ Gagal memproses: " + err.message);
+                });
+            }
+        }
+
+        function adminToggleHideDanaPelatih(noHp, hideTarget) {
+            const actionTxt = hideTarget ? "SEMBUNYIKAN" : "TAMPILKAN";
+            if (confirm(`Apakah Anda yakin ingin me-${actionTxt} semua data saldo & nominal honor pada akun pelatih (${noHp})?`)) {
+                showLoading(`Memproses Status Hide Dana (${actionTxt})...`, 10);
+                db.ref(`keuangan/pelatih/${noHp}`).update({
+                    hideDana: hideTarget
+                }).then(() => {
+                    hideLoading();
+                    recordSystemLog("Super Administrator", noHp, "Superadmin", "HIDE_DANA", `Ubah hide dana akun (${noHp}) -> ${hideTarget}`);
+                    alert(`✅ Data saldo & honor akun pelatih (${noHp}) berhasil di-${actionTxt}kan! Pelatih tetap bisa login tetapi nominal uang disembunyikan.`);
+                }).catch(err => {
+                    hideLoading();
+                    alert("❌ Gagal memproses: " + err.message);
+                });
+            }
+        }
+
+        function adminToggleHideDanaGlobal() {
+            db.ref(`keuangan/config/hideDanaGlobal`).once('value', snapshot => {
+                const current = snapshot.val() === true;
+                const target = !current;
+                const msg = target 
+                    ? "⚠️ SEMBUNYIKAN SEMUA DANA:\nApakah Anda yakin ingin SEMBUNYIKAN nominal saldo & honor pada SEMUA AKUN PELATIH?"
+                    : "✅ TAMPILKAN SEMUA DANA:\nApakah Anda yakin ingin MENAMPILKAN KEMBALI nominal saldo & honor pada semua akun pelatih?";
+                
+                if (confirm(msg)) {
+                    showLoading("Memproses Global Hide Dana...", 10);
+                    db.ref(`keuangan/config/hideDanaGlobal`).set(target).then(() => {
+                        hideLoading();
+                        recordSystemLog("Super Administrator", "-", "Superadmin", "GLOBAL_HIDE_DANA", `Ubah Global Hide Dana -> ${target}`);
+                        alert(target ? "🙈 Berhasil! Semua nominal saldo & honor di seluruh akun pelatih telah disembunyikan." : "👁️ Berhasil! Nominal saldo & honor diseluruh akun pelatih kembali ditampilkan.");
+                    }).catch(err => {
+                        hideLoading();
+                        alert("❌ Gagal memproses: " + err.message);
+                    });
+                }
+            });
+        }
+
+        function adminHapusPelatih(noHp, namaPelatih) {
+            if (confirm(`⚠️ WARN (Verifikasi 1): Apakah Anda yakin ingin MENGHAPUS PERMANEN akun pelatih Coach ${namaPelatih} (${noHp})?`)) {
+                const check = prompt(`⚠️ VERIFIKASI 2/2 KEAMANAN:\nKetik 'HAPUS' (huruf besar semua) untuk menghapus akun Coach ${namaPelatih} secara permanen:`);
+                if (check === "HAPUS") {
+                    showLoading(`Menghapus Akun Coach ${namaPelatih}...`, 10);
+                    db.ref(`keuangan/pelatih/${noHp}`).remove().then(() => {
+                        hideLoading();
+                        recordSystemLog("Super Administrator", noHp, "Superadmin", "HAPUS_DATA", `Hapus akun pelatih Coach ${namaPelatih} (${noHp})`);
+                        alert(`✅ Akun Coach ${namaPelatih} berhasil dihapus permanen.`);
+                    }).catch(err => {
+                        hideLoading();
+                        alert("❌ Gagal menghapus: " + err.message);
+                    });
+                } else {
+                    alert("❌ Verifikasi kedua gagal. Penghapusan dibatalkan.");
+                }
+            }
+        }
+
+        // BATCH SELECT ALL & DELETE LOGIC
+        function toggleSelectAllKehadiran(masterCb) {
+            const cbs = document.querySelectorAll(".cb-kehadiran");
+            cbs.forEach(cb => cb.checked = masterCb.checked);
+            updateSelectedKehadiranCount();
+        }
+
+        function updateSelectedKehadiranCount() {
+            const selected = document.querySelectorAll(".cb-kehadiran:checked");
+            const master = document.getElementById("selectAllKehadiran");
+            const allCbs = document.querySelectorAll(".cb-kehadiran");
+            if (master && allCbs.length > 0) {
+                master.checked = (selected.length === allCbs.length);
+            }
+            const btnHapus = document.getElementById("btnHapusMassalKehadiran");
+            const countSpan = document.getElementById("countSelectedKehadiran");
+            if (btnHapus && countSpan) {
+                countSpan.innerText = selected.length;
+                btnHapus.style.display = selected.length > 0 ? "inline-flex" : "none";
+            }
+        }
+
+        function adminHapusMassalKehadiran() {
+            const selected = document.querySelectorAll(".cb-kehadiran:checked");
+            if (selected.length === 0) {
+                alert("❌ Pilih minimal 1 data rekap kehadiran yang ingin dihapus!");
+                return;
+            }
+
+            const count = selected.length;
+            if (confirm(`⚠️ [VERIFIKASI 1/2] Apakah Anda YAKIN ingin menghapus ${count} data rekap kehadiran yang dicentang secara permanen?`)) {
+                const check = prompt(`🚨 [VERIFIKASI 2/2 - VERIFIKASI GANDA]\nPenghapusan ini TIDAK BISA DIBATALKAN!\n\nKetik tulisan 'HAPUS' (huruf besar semua) untuk memproses hapus permanen ${count} data kehadiran:`);
+                
+                if (check === "HAPUS") {
+                    showLoading(`Menghapus ${count} Data Kehadiran...`, 10);
+                    let updates = {};
+                    selected.forEach(cb => {
+                        updates[`keuangan/kehadiran/${cb.value}`] = null;
+                    });
+                    db.ref().update(updates).then(() => {
+                        hideLoading();
+                        recordSystemLog("Super Administrator", "-", "Superadmin", "HAPUS_DATA", `Menghapus massal ${count} data rekap kehadiran`);
+                        alert(`✅ VERIFIKASI BERHASIL! ${count} data rekap kehadiran berhasil dihapus permanen dari database.`);
+                    }).catch(err => {
+                        hideLoading();
+                        alert("❌ Gagal menghapus data: " + err.message);
+                    });
+                } else {
+                    alert("❌ Verifikasi 2 gagal / dibatalkan. Data aman dan tidak ada yang dihapus.");
+                }
+            }
+        }
+
+        function toggleSelectAllPelatih(masterCb) {
+            const cbs = document.querySelectorAll(".cb-pelatih");
+            cbs.forEach(cb => cb.checked = masterCb.checked);
+            updateSelectedPelatihCount();
+        }
+
+        function updateSelectedPelatihCount() {
+            const selected = document.querySelectorAll(".cb-pelatih:checked");
+            const master = document.getElementById("selectAllPelatih");
+            const allCbs = document.querySelectorAll(".cb-pelatih");
+            if (master && allCbs.length > 0) {
+                master.checked = (selected.length === allCbs.length);
+            }
+            const btnHapus = document.getElementById("btnHapusMassalPelatih");
+            const countSpan = document.getElementById("countSelectedPelatih");
+            if (btnHapus && countSpan) {
+                countSpan.innerText = selected.length;
+                btnHapus.style.display = selected.length > 0 ? "inline-flex" : "none";
+            }
+        }
+
+        function adminHapusMassalPelatih() {
+            const selected = document.querySelectorAll(".cb-pelatih:checked");
+            if (selected.length === 0) {
+                alert("❌ Pilih minimal 1 akun pelatih yang ingin dihapus!");
+                return;
+            }
+
+            const count = selected.length;
+            if (confirm(`⚠️ [VERIFIKASI 1/2] Apakah Anda YAKIN ingin menghapus PERMANEN ${count} akun pelatih yang dicentang?`)) {
+                const check = prompt(`🚨 [VERIFIKASI 2/2 - VERIFIKASI GANDA]\nHapus akun pelatih secara permanen!\n\nKetik tulisan 'HAPUS' (huruf besar semua) untuk memproses ${count} akun pelatih:`);
+                
+                if (check === "HAPUS") {
+                    showLoading(`Menghapus ${count} Akun Pelatih...`, 10);
+                    let updates = {};
+                    selected.forEach(cb => {
+                        updates[`keuangan/pelatih/${cb.value}`] = null;
+                    });
+                    db.ref().update(updates).then(() => {
+                        hideLoading();
+                        recordSystemLog("Super Administrator", "-", "Superadmin", "HAPUS_DATA", `Menghapus massal ${count} akun pelatih`);
+                        alert(`✅ VERIFIKASI BERHASIL! ${count} akun pelatih berhasil dihapus permanen.`);
+                    }).catch(err => {
+                        hideLoading();
+                        alert("❌ Gagal menghapus akun: " + err.message);
+                    });
+                } else {
+                    alert("❌ Verifikasi 2 gagal / dibatalkan. Akun pelatih aman.");
+                }
+            }
+        }
+
+        function toggleSelectAllPenarikan(masterCb) {
+            const cbs = document.querySelectorAll(".cb-penarikan");
+            cbs.forEach(cb => cb.checked = masterCb.checked);
+            updateSelectedPenarikanCount();
+        }
+
+        function updateSelectedPenarikanCount() {
+            const selected = document.querySelectorAll(".cb-penarikan:checked");
+            const master = document.getElementById("selectAllPenarikan");
+            const allCbs = document.querySelectorAll(".cb-penarikan");
+            if (master && allCbs.length > 0) {
+                master.checked = (selected.length === allCbs.length);
+            }
+            const btnHapus = document.getElementById("btnHapusMassalPenarikan");
+            const countSpan = document.getElementById("countSelectedPenarikan");
+            if (btnHapus && countSpan) {
+                countSpan.innerText = selected.length;
+                btnHapus.style.display = selected.length > 0 ? "inline-flex" : "none";
+            }
+        }
+
+        function adminHapusMassalPenarikan() {
+            const selected = document.querySelectorAll(".cb-penarikan:checked");
+            if (selected.length === 0) {
+                alert("❌ Pilih minimal 1 rekap pengajuan penarikan yang ingin dihapus!");
+                return;
+            }
+
+            const count = selected.length;
+            if (confirm(`⚠️ [VERIFIKASI 1/2] Apakah Anda YAKIN ingin menghapus ${count} riwayat pengajuan penarikan dana yang dicentang?`)) {
+                const check = prompt(`🚨 [VERIFIKASI 2/2 - VERIFIKASI GANDA]\nKetik tulisan 'HAPUS' (huruf besar semua) untuk menghapus permanen ${count} data riwayat penarikan:`);
+                
+                if (check === "HAPUS") {
+                    showLoading(`Menghapus ${count} Riwayat Penarikan...`, 10);
+                    let updates = {};
+                    selected.forEach(cb => {
+                        updates[`keuangan/penarikan/${cb.value}`] = null;
+                    });
+                    db.ref().update(updates).then(() => {
+                        hideLoading();
+                        recordSystemLog("Super Administrator", "-", "Superadmin", "HAPUS_DATA", `Menghapus massal ${count} riwayat penarikan dana`);
+                        alert(`✅ VERIFIKASI BERHASIL! ${count} data riwayat penarikan berhasil dihapus permanen.`);
+                    }).catch(err => {
+                        hideLoading();
+                        alert("❌ Gagal menghapus data penarikan: " + err.message);
+                    });
+                } else {
+                    alert("❌ Verifikasi 2 gagal / dibatalkan. Data riwayat penarikan aman.");
+                }
+            }
+        }
+
+        // LIGHTBOX PREVIEW FOTO PROFIL
+        function previewFotoPelatihAdmin(fotoUrl, namaPelatih) {
+            if (!document.getElementById("modalPreviewFotoAdmin")) {
+                const div = document.createElement("div");
+                div.id = "modalPreviewFotoAdmin";
+                div.className = "modal-backdrop";
+                div.innerHTML = `
+                    <div class="modal-box" style="text-align:center; max-width:400px;">
+                        <div class="modal-header">
+                            <h3 id="previewFotoTitle"><i class="fa-solid fa-id-badge" style="color:var(--primary);"></i> Foto Profil Pelatih</h3>
+                            <button class="btn-close-modal" onclick="closePreviewFotoAdmin()">&times;</button>
+                        </div>
+                        <div style="margin: 16px 0;">
+                            <img id="previewFotoImg" src="" style="width:100%; max-height:350px; border-radius:14px; object-fit:cover; border:2px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                        </div>
+                        <button class="btn-submit-form" style="background:rgba(255,255,255,0.1); color:#fff;" onclick="closePreviewFotoAdmin()">Tutup Preview</button>
+                    </div>
+                `;
+                document.body.appendChild(div);
+            }
+            document.getElementById("previewFotoTitle").innerHTML = `<i class="fa-solid fa-id-badge" style="color:var(--primary);"></i> Coach ${namaPelatih}`;
+            document.getElementById("previewFotoImg").src = fotoUrl;
+            document.getElementById("modalPreviewFotoAdmin").classList.add("active");
+        }
+
+        function closePreviewFotoAdmin() {
+            const modal = document.getElementById("modalPreviewFotoAdmin");
+            if (modal) modal.classList.remove("active");
+        }
+    </script>
+</body>
+</html>

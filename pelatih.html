@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Coach - Sistem Gaji Pelatih</title>
+
+    <!-- Security Guard -->
+    <script src="security-guard.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDK compat -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- NAVBAR -->
+        <header class="main-header">
+            <div class="logo-brand">
+                <i class="fa-solid fa-whistle"></i>
+                <div>
+                    <h1>Portal Pelatih Official</h1>
+                    <p>Absensi, Total Honor & Pencairan Realtime</p>
+                </div>
+            </div>
+            <div class="user-badge-header">
+                <div class="profile-avatar-container" onclick="openModalEditProfil()" title="Klik untuk ubah foto profil">
+                    <img id="userAvatarHeader" src="" alt="Avatar" style="width:42px; height:42px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); display:none;">
+                    <div id="userAvatarPlaceholder" style="width:42px; height:42px; border-radius:50%; background:rgba(59, 130, 246, 0.2); color:var(--primary); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; border:1px solid rgba(59, 130, 246, 0.4);">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                </div>
+                <div class="badge-info">
+                    <div id="userNamaHeader" class="name">Coach...</div>
+                    <div id="userHpHeader" class="role">085...</div>
+                </div>
+                <button class="btn-logout" onclick="logoutUser()"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
+            </div>
+        </header>
+
+        <!-- BANNER TARIK TUNAI PENCAIRAN -->
+        <section class="tarik-tunai-banner">
+            <div class="tarik-info">
+                <h2><i class="fa-solid fa-sack-dollar" style="color:#10b981;"></i> Pencairan Honor / Tarik Tunai</h2>
+                <p id="tarikStatusNotice">Sistem memeriksa ketersediaan saldo siap cair Anda...</p>
+            </div>
+            <button id="btnTarikTunai" class="btn-tarik-tunai" onclick="openModalTarikTunai()" disabled>
+                <i class="fa-solid fa-money-bill-transfer"></i> Tarik Tunai Sekarang
+            </button>
+        </section>
+
+        <!-- STATS CARDS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon emerald"><i class="fa-solid fa-wallet"></i></div>
+                <div class="stat-details">
+                    <label>Total Honor Mengajar</label>
+                    <h3 id="totalGajiUser">Rp 0</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fa-solid fa-clipboard-user"></i></div>
+                <div class="stat-details">
+                    <label>Total Kehadiran / Datang</label>
+                    <h3 id="totalKehadiranUser">0 Kali</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon amber"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                <div class="stat-details">
+                    <label>Saldo Siap Cair</label>
+                    <h3 id="saldoSiapCairUser">Rp 0</h3>
+                </div>
+            </div>
+            <div class="stat-card" style="cursor:pointer;" onclick="openModalEditProfil()">
+                <div class="stat-icon purple"><i class="fa-solid fa-user-gear"></i></div>
+                <div class="stat-details">
+                    <label>Profil & Rekening Default</label>
+                    <h3 style="font-size:14px; color:var(--primary);">Edit Data <i class="fa-solid fa-arrow-right"></i></h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABEL KEHADIRAN & GAJI -->
+        <section class="glass-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="font-size:16px; font-weight:700;"><i class="fa-solid fa-calendar-check" style="color:var(--primary);"></i> Rincian Kehadiran & Sesi Mengajar</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Hari & Tanggal</th>
+                            <th>Sekolah Diajar</th>
+                            <th>Status Absen</th>
+                            <th>Durasi Sesi</th>
+                            <th>Honor per Sesi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelJadwalUser">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- TABEL RIWAYAT PENCAIRAN TUNAI -->
+        <section class="glass-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="font-size:16px; font-weight:700;"><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent-amber);"></i> Riwayat Pengajuan Pencairan Dana</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Tanggal Pengajuan</th>
+                            <th>Tujuan Rekening / Bank</th>
+                            <th>Nominal Ditarik</th>
+                            <th>Status Admin</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelRiwayatPenarikan">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- MODAL FORM TARIK TUNAI (3 FIELD WAJIB) -->
+    <div id="modalTarikTunai" class="modal-backdrop">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-money-bill-wave" style="color:var(--accent-emerald);"></i> Form Pencairan Tarik Tunai</h3>
+                <button class="btn-close-modal" onclick="closeModalTarikTunai()">&times;</button>
+            </div>
+            <form onsubmit="handleFormSubmitPenarikan(event)">
+                <div class="form-group">
+                    <label><i class="fa-solid fa-building-columns"></i> 1. Nama Bank / E-Wallet</label>
+                    <input type="text" id="tarikBank" class="form-control" placeholder="Contoh: BCA / BRI / Mandiri / DANA / OVO" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-credit-card"></i> 2. Nomor Rekening / No HP E-Wallet</label>
+                    <input type="text" id="tarikNorek" class="form-control" placeholder="Contoh: 1234567890 atau 0851xxx" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-id-card"></i> 3. Nama Pemilik Rekening</label>
+                    <input type="text" id="tarikPemilik" class="form-control" placeholder="Contoh: Adit Pratama" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-money-bill-wave"></i> 4. Nominal yang Ingin Ditarik (Rp)</label>
+                    <input type="number" id="tarikNominal" class="form-control" placeholder="Bisa diisi manual atau pilih % di bawah" min="1" required>
+                    <small style="color:var(--text-secondary); font-size:11px; display:block; margin-top:4px;">
+                        Maksimal yang bisa dicairkan: <strong id="maxSaldoDisplay" style="color:#10b981;">Rp 0</strong>
+                    </small>
+                </div>
+                <div style="display:flex; gap:6px; margin-bottom:16px;">
+                    <button type="button" class="btn-action-satset" style="flex:1; justify-content:center; padding:6px;" onclick="setPercentageTarik(25)">25%</button>
+                    <button type="button" class="btn-action-satset" style="flex:1; justify-content:center; padding:6px;" onclick="setPercentageTarik(50)">50%</button>
+                    <button type="button" class="btn-action-satset" style="flex:1; justify-content:center; padding:6px;" onclick="setPercentageTarik(75)">75%</button>
+                    <button type="button" class="btn-action-satset" style="flex:1; justify-content:center; padding:6px; background:#34d399;" onclick="setPercentageTarik(100)">100% (Semua)</button>
+                </div>
+                <button type="submit" class="btn-submit-form" style="background:var(--accent-emerald); color:#000;"><i class="fa-solid fa-paper-plane"></i> Ajukan Pencairan Ke Admin</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT PROFIL PELATIH -->
+    <div id="modalEditProfil" class="modal-backdrop">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-user-pen" style="color:var(--primary);"></i> Edit Data Profil Pelatih</h3>
+                <button class="btn-close-modal" onclick="closeModalEditProfil()">&times;</button>
+            </div>
+            <form onsubmit="handleFormSubmitEditProfil(event)">
+                <div class="form-group" style="text-align:center; margin-bottom:20px;">
+                    <div style="position:relative; display:inline-block;">
+                        <img id="editAvatarPreview" src="" alt="Preview" style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:3px solid var(--primary); display:none;">
+                        <div id="editAvatarPlaceholder" style="width:80px; height:80px; border-radius:50%; background:rgba(59, 130, 246, 0.2); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:32px; border:2px dashed var(--primary); margin:0 auto;">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                    </div>
+                    <label for="editFotoInput" style="display:block; margin-top:8px; color:var(--primary); cursor:pointer; font-weight:700; font-size:13px;">
+                        <i class="fa-solid fa-upload"></i> Upload Foto Profil / Logo (Max 2MB)
+                    </label>
+                    <input type="file" id="editFotoInput" accept="image/*" style="display:none;" onchange="handleFotoUploadPreview(this)">
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-phone"></i> Nomor HP / Username (Tidak Dapat Diubah)</label>
+                    <input type="text" id="editHpInput" class="form-control" style="background:rgba(255,255,255,0.02); color:var(--text-muted); cursor:not-allowed;" readonly>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-user"></i> Nama Lengkap</label>
+                    <input type="text" id="editNamaInput" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-key"></i> Password / Tanggal Lahir Baru (Opsional)</label>
+                    <input type="text" id="editPwInput" class="form-control" placeholder="Kosongkan jika tidak ubah (Wajib 6 Angka DDMMYY)" minlength="6" maxlength="6">
+                    <small style="color:var(--text-muted); font-size:11px; display:block; margin-top:2px;">🔒 Wajib 6 digit angka DDMMYY (Contoh: 160905)</small>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-building-columns" style="color:#38bdf8;"></i> Nama Bank / E-Wallet Default <span style="color:#ef4444;">*Wajib (Min 3 Huruf)</span></label>
+                    <input type="text" id="editBankDefault" class="form-control" placeholder="Contoh: BCA / Mandiri / BRI / DANA" minlength="3" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-credit-card" style="color:#38bdf8;"></i> Nomor Rekening / No E-Wallet <span style="color:#ef4444;">*Wajib (Min 7 Angka)</span></label>
+                    <input type="text" id="editNorekDefault" class="form-control" placeholder="Contoh: 1234567890 (Minimal 7 Angka)" minlength="7" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-id-card" style="color:#38bdf8;"></i> Nama Pemilik Rekening (A.N) <span style="color:#ef4444;">*Wajib (Min 5 Huruf)</span></label>
+                    <input type="text" id="editPemilikDefault" class="form-control" placeholder="Sesuai buku tabungan (Minimal 5 Huruf)" minlength="5" required>
+                </div>
+                <button type="submit" class="btn-submit-form"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan Profil</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            initPelatihDashboard();
+        });
+
+        function openModalTarikTunai() {
+            document.getElementById("modalTarikTunai").classList.add("active");
+            const maxSaldo = window.currentSaldoSiapCair || 0;
+            document.getElementById("maxSaldoDisplay").innerText = formatRupiah(maxSaldo);
+            document.getElementById("tarikNominal").value = maxSaldo;
+            document.getElementById("tarikNominal").max = maxSaldo;
+
+            // Autofill jika user sudah simpan bank default
+            const userHp = sessionStorage.getItem("pelatih_user_hp");
+            if (userHp) {
+                firebase.database().ref(`keuangan/pelatih/${userHp}`).once('value', snapshot => {
+                    const u = snapshot.val() || {};
+                    if (u.bankDefault) document.getElementById("tarikBank").value = u.bankDefault;
+                    if (u.norekDefault) document.getElementById("tarikNorek").value = u.norekDefault;
+                    if (u.pemilikDefault) document.getElementById("tarikPemilik").value = u.pemilikDefault;
+                });
+            }
+        }
+
+        function setPercentageTarik(percent) {
+            const maxSaldo = window.currentSaldoSiapCair || 0;
+            const calculated = Math.floor((maxSaldo * percent) / 100);
+            document.getElementById("tarikNominal").value = calculated;
+        }
+
+        function closeModalTarikTunai() {
+            document.getElementById("modalTarikTunai").classList.remove("active");
+        }
+
+        function openModalEditProfil() {
+            document.getElementById("modalEditProfil").classList.add("active");
+        }
+
+        function closeModalEditProfil() {
+            document.getElementById("modalEditProfil").classList.remove("active");
+        }
+
+        function handleFormSubmitPenarikan(e) {
+            e.preventDefault();
+            const b = document.getElementById("tarikBank").value;
+            const n = document.getElementById("tarikNorek").value;
+            const p = document.getElementById("tarikPemilik").value;
+            const nom = document.getElementById("tarikNominal").value;
+            submitPenarikanForm(b, n, p, nom);
+        }
+
+        let tempFotoBase64 = null;
+
+        function handleFotoUploadPreview(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (file.size > 2 * 1024 * 1024) {
+                    alert("❌ Ukuran foto terlalu besar! Maksimal 2MB.");
+                    input.value = "";
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempFotoBase64 = e.target.result;
+                    const previewImg = document.getElementById("editAvatarPreview");
+                    const placeholder = document.getElementById("editAvatarPlaceholder");
+                    previewImg.src = tempFotoBase64;
+                    previewImg.style.display = "block";
+                    placeholder.style.display = "none";
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleFormSubmitEditProfil(e) {
+            e.preventDefault();
+            const nama = document.getElementById("editNamaInput").value;
+            const pwBaru = document.getElementById("editPwInput").value;
+            const b = document.getElementById("editBankDefault").value;
+            const n = document.getElementById("editNorekDefault").value;
+            const p = document.getElementById("editPemilikDefault").value;
+            updateProfilPelatih(nama, b, n, p, tempFotoBase64, pwBaru);
+        }
+    </script>
+</body>
+</html>
