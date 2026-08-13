@@ -2048,7 +2048,12 @@
             kehadiranList.forEach(item => {
                 const hpKey = (item.noHp || "").trim();
                 const nmKey = (item.namaPelatih || "").trim().toLowerCase();
-                const honor = Number(item.honor || 0);
+                let honor = 0;
+                if (typeof item.honor === 'number') {
+                    honor = item.honor;
+                } else if (typeof item.honor === 'string') {
+                    honor = Number(item.honor.replace(/[^0-9]/g, '')) || 0;
+                }
 
                 if (hpKey) totalKotorPerHp.set(hpKey, (totalKotorPerHp.get(hpKey) || 0) + honor);
                 if (nmKey) totalKotorPerNama.set(nmKey, (totalKotorPerNama.get(nmKey) || 0) + honor);
@@ -2068,14 +2073,20 @@
 
             kehadiranList.forEach(item => {
                 const sklId = item.sekolahId || "";
+                const itemNamaClean = (item.namaSekolah || "").trim().toLowerCase();
                 let mapKey = sklId;
 
-                if (!mapKey) {
+                if (!mapKey || !rekapMap.has(mapKey)) {
                     let foundKey = "";
                     masterMap.forEach((val, k) => {
-                        if (val === item.namaSekolah) foundKey = k;
+                        if (val.trim().toLowerCase() === itemNamaClean) foundKey = k;
                     });
-                    mapKey = foundKey || item.namaSekolah || "Sekolah Regular";
+                    if (!foundKey) {
+                        rekapMap.forEach((rVal, rKey) => {
+                            if (rVal.namaSekolah.trim().toLowerCase() === itemNamaClean) foundKey = rKey;
+                        });
+                    }
+                    mapKey = foundKey || (item.namaSekolah ? item.namaSekolah.trim() : "Sekolah Regular");
                 }
 
                 const nmSekolah = (sklId && masterMap.has(sklId)) 
@@ -2098,7 +2109,12 @@
                 data.namaSekolah = nmSekolah;
                 data.frekuensiCount += 1;
 
-                const itemHonor = Number(item.honor || 0);
+                let itemHonor = 0;
+                if (typeof item.honor === 'number') {
+                    itemHonor = item.honor;
+                } else if (typeof item.honor === 'string') {
+                    itemHonor = Number(item.honor.replace(/[^0-9]/g, '')) || 0;
+                }
                 const hpKey = (item.noHp || "").trim();
                 const nmKey = (item.namaPelatih || "").trim().toLowerCase();
 
